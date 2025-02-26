@@ -1,12 +1,12 @@
 import debug from './debug.js';
 import checkConditions from './checkConditions.js';
 
-export default function (targetRequest, routeItem) {
-  let routeItems = targetRequest.route.split('/');
+export default function (options, routeItem) {
+  let routeItems = options.route.split('/');
 
   if (routeItem.type == 'metric') {
     if (routeItem.conditions) {
-      if (!checkConditions(routeItem.conditions, targetRequest.request, targetRequest.jsonData)) {
+      if (!checkConditions(routeItem.conditions, options)) {
         return false;
       }
     }
@@ -14,7 +14,7 @@ export default function (targetRequest, routeItem) {
   }
   if (routeItem.path && routeItem.path.length == 1 && routeItem.path[0] == '*') {
     if (routeItem.conditions) {
-      if (!checkConditions(routeItem.conditions, targetRequest.request, targetRequest.jsonData)) {
+      if (!checkConditions(routeItem.conditions, options)) {
         return false;
       }
     }
@@ -24,13 +24,13 @@ export default function (targetRequest, routeItem) {
   let checkPath = function (paths) {
     for (let path of paths) {
       // If route qual saved path
-      if (path == targetRequest.route) {
+      if (path == options.route) {
         return true;
       }
 
       // If routeItems.length == 1, and did not match
       if (routeItems.length == 1) {
-        if (path != targetRequest.route) {
+        if (path != options.route) {
           continue;
         }
       }
@@ -60,7 +60,7 @@ export default function (targetRequest, routeItem) {
     return false;
   }
   if (routeItem.conditions) {
-    if (!checkConditions(routeItem.conditions, targetRequest.request, targetRequest.jsonData)) {
+    if (!checkConditions(routeItem.conditions, options)) {
       return false;
     }
   }

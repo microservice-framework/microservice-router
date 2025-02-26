@@ -29,14 +29,14 @@ function getProperty(propertyName, object) {
   return property;
 }
 
-export default async function (conditions, jsonData, request) {
-  debug.debug('checkConditions %O request: %O json: %O', conditions, request, jsonData);
+export default async function (conditions, options) {
+  debug.debug('checkConditions %O options: %O json: %O', conditions, options);
   if (conditions.headers && conditions.headers.length) {
     for (let header of conditions.headers) {
-      if (!request.headers[header.name]) {
+      if (!options.request.headers[header.name]) {
         return false;
       }
-      let receivedHeaderValue = request.headers[header.name];
+      let receivedHeaderValue = options.request.headers[header.name];
       if (header.isRegex) {
         let pattern = new RegExp(header.value, 'i');
         if (!pattern.test(receivedHeaderValue)) {
@@ -51,18 +51,18 @@ export default async function (conditions, jsonData, request) {
   }
   // check methods
   if (conditions.methods && conditions.methods.length) {
-    if (conditions.methods.indexOf(request.method) == -1) {
+    if (conditions.methods.indexOf(options.method) == -1) {
       return false;
     }
   }
   // check payload
-  if (conditions.payload && conditions.payload.length && jsonData) {
-    if (typeof jsonData != 'object') {
+  if (conditions.payload && conditions.payload.length && options.data) {
+    if (typeof options.data != 'object') {
       return false;
     }
     for (let payload of conditions.payload) {
       debug.debug('Checking for condition %O', payload);
-      let receivedPayloadValue = getProperty(payload.name, jsonData);
+      let receivedPayloadValue = getProperty(payload.name, options.data);
       debug.debug('receivedPayloadValue %O', receivedPayloadValue);
       if (receivedPayloadValue instanceof Error) {
         return false;
