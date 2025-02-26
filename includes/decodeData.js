@@ -1,7 +1,7 @@
 /**
  * decode buffer to specidied by content-type format.
  */
-export default function(contentType, buffer) {
+export default function (contentType, buffer) {
   let data = false;
   switch (contentType) {
     case undefined: // version 1.x compatibility. If no content-type provided, assume json.
