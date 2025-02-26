@@ -7,7 +7,6 @@ const debug = {
   debugHook: debugF('proxy:hook'),
 };
 
-
 export default async function (mongoDB) {
   let db = mongoDB.db(process.env.MONGO_DB);
   let collection = db.collection(process.env.MONGO_TABLE);
@@ -19,7 +18,7 @@ export default async function (mongoDB) {
     }
   } catch (err) {
     debug.debug('updateRouteVariable:find err: %O', err);
-    return false; 
+    return false;
   }
 
   let newServices = [];

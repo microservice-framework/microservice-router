@@ -1,16 +1,16 @@
-import applyAccessToken from '../applyAccessToken.js'
-import proxyRequest from './proxyRequest.js'
+import applyAccessToken from '../applyAccessToken.js';
+import proxyRequest from './proxyRequest.js';
 
 export default async function (recordId, request) {
   applyAccessToken(request);
   if (request.url == '') {
     return {
       code: 200,
-      answer: "",
+      answer: '',
       headers: {
-        'Content-Type': "text/html"
-      }
-    }
+        'Content-Type': 'text/html',
+      },
+    };
   }
   let cutPosition = request.url.lastIndexOf('/');
   let route = request.url.substring(0, cutPosition);
@@ -32,9 +32,12 @@ export default async function (recordId, request) {
       headers: responseHeaders,
     });
   }
-  return proxyRequest({
-    route: route,
-    path: path,
-    method: 'GET',
-  }, request)
+  return proxyRequest(
+    {
+      route: route,
+      path: path,
+      method: 'GET',
+    },
+    request
+  );
 }

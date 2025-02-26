@@ -1,5 +1,5 @@
 import debug from './debug.js';
-import findHookTarget from './findHookTarget.js'
+import findHookTarget from './findHookTarget.js';
 
 export default async function (targetRequest, phase) {
   let getHeaders = function (router, hookType) {

@@ -1,4 +1,4 @@
-export default function(request) {
+export default function (request) {
   if (request.url.indexOf('?') != -1) {
     let cutPosition = request.url.lastIndexOf('?');
     let accessToken = request.url.substring(cutPosition + 1);

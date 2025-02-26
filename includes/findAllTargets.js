@@ -1,6 +1,6 @@
 import debug from './debug.js';
 
-export default function(targetRequest, type) {
+export default function (targetRequest, type) {
   debug.debug('Find all routes %s', targetRequest.route);
 
   var availableRoutes = [];

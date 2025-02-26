@@ -1,5 +1,5 @@
 import debug from './debug.js';
-import checkConditions from './checkConditions.js'
+import checkConditions from './checkConditions.js';
 
 export default function (targetRequest, routeItem) {
   let routeItems = targetRequest.route.split('/');
