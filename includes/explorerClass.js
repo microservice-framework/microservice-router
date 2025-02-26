@@ -14,8 +14,7 @@ let templatePath = './html';
 if (process.env.TEMPLATE_PATH) {
   templatePath = process.env.TEMPLATE_PATH;
 }
-const dots = doT.process({ path: templatePath, strip: false});
-
+const dots = doT.process({ path: templatePath, strip: false });
 
 function ExplorerClass(requestDetails, callback) {
   EventEmitter.call(this);
@@ -29,28 +28,31 @@ function ExplorerClass(requestDetails, callback) {
   if (requestDetails.headers.accept.indexOf('text/html') != -1) {
     self.mode = 'html';
   }
-  self.once('error', function(err) {
+  self.once('error', function (err) {
     self.debug.explorer('Error %O', err);
     return self.callback(err, null);
   });
-  self.once('services', function(services) {
+  self.once('services', function (services) {
     self.debug.explorer('services %O %O', services, self.requestDetails);
     if (!self.requestDetails.isSecure) {
-      let accessToken = ''
+      let accessToken = '';
       if (self.requestDetails.headers.access_token) {
         accessToken = self.requestDetails.headers.access_token;
-      };
+      }
       if (self.requestDetails.headers['access-token']) {
         accessToken = self.requestDetails.headers['access-token'];
-      };
+      }
       if (services['auth']) {
         let clientSettings = {
           URL: services['auth'].url,
           secureKey: services['auth'].secureKey,
-        }
+        };
         let msClient = new MicroserviceClient(clientSettings);
-        msClient.search({
-          accessToken: accessToken}, function(err, answer) {
+        msClient.search(
+          {
+            accessToken: accessToken,
+          },
+          function (err, answer) {
             if (err) {
               return self.emit('done');
             }
@@ -58,7 +60,8 @@ function ExplorerClass(requestDetails, callback) {
               return self.emit('done');
             }
             self.accessTokenDetails = answer[0];
-          });
+          }
+        );
       }
     }
     for (let path in services) {
@@ -67,7 +70,7 @@ function ExplorerClass(requestDetails, callback) {
       self.processService(path, service);
     }
   });
-  self.once('done', function(map) {
+  self.once('done', function (map) {
     self.debug.explorer('map %s %s: %O', requestDetails.headers.accept, self.mode, map);
     let resultMap = [];
     for (var i in map) {
@@ -75,7 +78,7 @@ function ExplorerClass(requestDetails, callback) {
         resultMap.push(map[i]);
       }
     }
-    resultMap.sort(function(a,b) {
+    resultMap.sort(function (a, b) {
       if (a.path < b.path) {
         return -1;
       }
@@ -108,34 +111,33 @@ function ExplorerClass(requestDetails, callback) {
       resultMap.push({
         name: name,
         version: version,
-        description:description
-      })
+        description: description,
+      });
       return self.callback(null, {
         code: 200,
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, DELETE, PUT, SEARCH',
-          'Access-Control-Allow-Headers': 'content-type, signature, access_token,'
-            + ' token, Access-Token',
+          'Access-Control-Allow-Headers': 'content-type, signature, access_token,' + ' token, Access-Token',
           'Access-Control-Expose-Headers': 'x-total-count',
         },
-        answer: resultMap
+        answer: resultMap,
       });
     }
-    let accessToken = ''
+    let accessToken = '';
     if (self.requestDetails.headers.access_token) {
       accessToken = self.requestDetails.headers.access_token;
-    };
+    }
     if (self.requestDetails.headers['access-token']) {
       accessToken = self.requestDetails.headers['access-token'];
-    };
+    }
 
     if (self.requestDetails.isSecure) {
       accessToken = self.requestDetails.SecureKey;
     }
     return self.processMapToHTML(resultMap, self.requestDetails.isSecure, accessToken);
   });
-  self.on('errorService', function(err, path, service) {
+  self.on('errorService', function (err, path, service) {
     self.debug.explorer('Error options %O %s %O', err, path, service);
     if (typeof err === 'string') {
       err = new Error(err);
@@ -151,28 +153,27 @@ function ExplorerClass(requestDetails, callback) {
     }
   });
 
-  self.on('service', function(path, service, options) {
+  self.on('service', function (path, service, options) {
     self.debug.explorer('Service %s, %O, %O', path, service, options);
     let item = {
       path: path,
       scope: service.scope,
       provides: service.provides,
-      options: options
+      options: options,
     };
     if (self.requestDetails.isSecure) {
-      item.secureKey = service.secureKey
+      item.secureKey = service.secureKey;
     }
     self.map.push(item);
     if (self.map.length == self.servicesCount) {
       self.emit('done', self.map);
     }
   });
-
 }
 util.inherits(ExplorerClass, EventEmitter);
 
 ExplorerClass.prototype.debug = {
-  explorer: debugF('proxy:explorer')
+  explorer: debugF('proxy:explorer'),
 };
 
 /**
@@ -180,7 +181,7 @@ ExplorerClass.prototype.debug = {
  *
  * @param {object} module - module data.
  */
-ExplorerClass.prototype.processMapToHTML = function(map, isSecure, accessToken) {;
+ExplorerClass.prototype.processMapToHTML = function (map, isSecure, accessToken) {
   var self = this;
 
   let servicesHTML = '';
@@ -188,7 +189,7 @@ ExplorerClass.prototype.processMapToHTML = function(map, isSecure, accessToken) 
     map[i].isSecure = self.requestDetails.isSecure;
     var serviceHTML = '';
     try {
-      serviceHTML = dots.service(map[i])
+      serviceHTML = dots.service(map[i]);
     } catch (e) {
       self.debug.explorer('Error on dot template error: %O service: %O', e, map[i]);
     }
@@ -224,11 +225,11 @@ ExplorerClass.prototype.processMapToHTML = function(map, isSecure, accessToken) 
     expireIn = '';
     if (expireInsec > 3600) {
       expireIn = expireIn + Math.floor(expireInsec / 3600) + ' hours ';
-      expireInsec = expireInsec -  Math.floor(expireInsec / 3600) * 3600;
+      expireInsec = expireInsec - Math.floor(expireInsec / 3600) * 3600;
     }
     if (expireInsec > 60) {
       expireIn = expireIn + Math.floor(expireInsec / 60) + ' min ';
-      expireInsec = expireInsec -  Math.floor(expireInsec / 60) * 60;
+      expireInsec = expireInsec - Math.floor(expireInsec / 60) * 60;
     }
     if (expireInsec > 0) {
       expireIn = expireIn + Math.round(expireInsec) + ' sec ';
@@ -250,29 +251,29 @@ ExplorerClass.prototype.processMapToHTML = function(map, isSecure, accessToken) 
         accessToken: accessToken,
         url: process.env.BASE_URL.replace(/\/$/, ''),
       }),
-      stylecss: dots.stylecss({})
-    }
+      stylecss: dots.stylecss({}),
+    };
     return self.callback(null, {
       code: 200,
       answer: dots.html(html),
       headers: {
-        'content-type': 'text/html'
-      }
+        'content-type': 'text/html',
+      },
     });
   } catch (e) {
     return self.callback(e);
   }
-}
+};
 /**
  * Process explorer request.
  *
  * @param {object} module - module data.
  */
-ExplorerClass.prototype.processService = function(path, service) {
+ExplorerClass.prototype.processService = function (path, service) {
   var self = this;
   let clientSettings = {
-    URL: service.url
-  }
+    URL: service.url,
+  };
   let accessToken = false;
   if (self.requestDetails.headers.access_token) {
     accessToken = self.requestDetails.headers.access_token;
@@ -286,24 +287,26 @@ ExplorerClass.prototype.processService = function(path, service) {
     clientSettings.secureKey = service.secureKey;
   }
   let msClient = new MicroserviceClient(clientSettings);
-  msClient.options({
-    path: path
-  }, function(err, options) {
-    if (err) {
-      return self.emit('errorService', err, path, service);
+  msClient.options(
+    {
+      path: path,
+    },
+    function (err, options) {
+      if (err) {
+        return self.emit('errorService', err, path, service);
+      }
+      return self.emit('service', path, service, options);
     }
-    return self.emit('service', path, service, options);
-  });
-}
+  );
+};
 /**
  * Process explorer request.
  *
  * @param {object} module - module data.
  */
-ExplorerClass.prototype.process = function() {
+ExplorerClass.prototype.process = function () {
   var self = this;
-  MongoClient.connect(process.env.MONGO_URL + process.env.MONGO_PREFIX +
-    process.env.MONGO_OPTIONS, function(err, db) {
+  MongoClient.connect(process.env.MONGO_URL + process.env.MONGO_PREFIX + process.env.MONGO_OPTIONS, function (err, db) {
     if (err) {
       // If error, do nothing.
       return self.emit('error', err);
@@ -311,7 +314,7 @@ ExplorerClass.prototype.process = function() {
 
     var collection = db.collection(process.env.MONGO_TABLE);
 
-    collection.find({type: "handler"}).toArray(function(err, results) {
+    collection.find({ type: 'handler' }).toArray(function (err, results) {
       db.close();
       if (err) {
         // If error, do nothing.
@@ -336,6 +339,6 @@ ExplorerClass.prototype.process = function() {
       self.emit('services', services);
     });
   });
-}
+};
 
 module.exports = ExplorerClass;
