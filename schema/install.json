@@ -12,20 +12,10 @@
       "default": "routes",
       "required": true
     },
-    "mongo_prefix": {
+    "mongo_db": {
       "type": "string",
       "description": "Mongo prefix(db)",
       "default": "mfw"
-    },
-    "mongo_options": {
-      "type": "string",
-      "description": "Mongo Options (example: ?replicaSet=rs1&slaveOk=true)",
-      "default": ""
-    },
-    "hostname": {
-      "type": "string",
-      "description": "IP or hostname of the server",
-      "default": ""
     },
     "port": {
       "type": "number",
