@@ -10,7 +10,7 @@ import debugF from 'debug';
 
 const debug = {
   log: debugF('router:log'),
-  debug: debugF('router:debug')
+  debug: debugF('router:debug'),
 };
 
 let interval = 6000;
@@ -28,7 +28,7 @@ let mservice = new Microservice({
   mongoDB: process.env.MONGO_DB,
   schema: process.env.SCHEMA,
   mongoTable: process.env.MONGO_TABLE,
-  secureKey: process.env.SECURE_KEY
+  secureKey: process.env.SECURE_KEY,
 });
 
 new Cluster({
@@ -37,9 +37,9 @@ new Cluster({
   methods: {
     POST: async function (data, request) {
       if (!data.online) {
-        data.online = true
+        data.online = true;
       }
-      return mservice.post(data, request)
+      return mservice.post(data, request);
     },
     GET: mservice.get.bind(mservice),
     PUT: mservice.put.bind(mservice),
@@ -48,7 +48,6 @@ new Cluster({
     OPTIONS: mservice.options.bind(mservice),
   },
 });
-
 
 const cleanupExpired = async function () {
   debug.debug('cleanup tokens');
@@ -89,78 +88,4 @@ function RegisterLoader(isStart, variables) {
     clearInterval(variables.interval);
     variables.register.shutdown();
   }
-}
-
-
-var mserviceRegister = new MicroserviceRouterRegister({
-  server: {
-    url: 'http://' + process.env.HOSTNAME + ':' + process.env.PORT,
-    secureKey: process.env.SECURE_KEY,
-    period: interval,
-  },
-  route: {
-    path: ['register'],
-    url: 'http://' + process.env.HOSTNAME + ':' + process.env.PORT + '/',
-    secureKey: process.env.SECURE_KEY,
-    online: true,
-    scope: 'admin'
-  },
-  cluster: mControlCluster
-});
-
-
-/**
- * Init Handler.
- */
-function adminInit(callback) {
-  let interval = 6000;
-  if (process.env.INTERVAL) {
-    interval = process.env.INTERVAL;
-  }
-  let cleanRouteTableInerval = setInterval(cleanRouteTable , interval);
-  debug.log('init executed %s', process.pid)
-  callback(cleanRouteTableInerval)
-  
-}
-
-/**
- * clear interval on shutdown.
- */
-function adminShutdown(cleanRouteTableInerval){
-  debug.log('shutdown executed %s', process.pid)
-  if (cleanRouteTableInerval) {
-    clearInterval(cleanRouteTableInerval)
-  }
-}
-
-
-/**
- * Update route infor each 10 sec.
- */
-function cleanRouteTable() {
-  debug.log('Clean routes');
-  MongoClient.connect(MongoURL, function(err, db) {
-    if (err) {
-      // If error, do nothing.
-      debug.debug('Error %s', err.message);
-
-      return;
-    }
-
-    var collection = db.collection(process.env.MONGO_TABLE);
-    var query = {
-      changed: {
-        $lt: Date.now() - 60 * 1000
-      }
-    };
-    collection.deleteMany(query, function(err, results) {
-      db.close();
-      if (err) {
-        // If error, do nothing.
-        debug.debug('Error %s', err.message);
-        return;
-      }
-      debug.log('Deleted %s routes', results.deletedCount);
-    });
-  });
 }
