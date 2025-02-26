@@ -4,9 +4,9 @@
 import debug from './debug.js';
 import findAllTargets from './findAllTargets.js';
 
-export default function (targetRequest, phase, type, group) {
-  debug.debugHook('Find all hooks route: %s phase: %s type: %s group: %s', targetRequest.route, phase, type, group);
-  let allHookTargets = findAllTargets(targetRequest, 'hook');
+export default function (options, phase, type, group) {
+  debug.debugHook('Find all hooks route: %s phase: %s type: %s group: %s', options.route, phase, type, group);
+  let allHookTargets = findAllTargets(options, 'hook');
   if (allHookTargets instanceof Error) {
     return allHookTargets;
   }
@@ -40,7 +40,7 @@ export default function (targetRequest, phase, type, group) {
     });
   }
   if (!finalHookTable.length) {
-    debug.debug('Not found for %s', targetRequest.route);
+    debug.debug('Not found for %s', options.route);
     debug.log('Hook instance %s not found', group);
     debug.debugHook('Hook instance %s not found', group);
     return new Error('Hook instance not found');

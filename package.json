@@ -28,6 +28,7 @@
     "@microservice-framework/microservice-client": "^3.0.0",
     "@microservice-framework/microservice-cluster": "^3.0.2",
     "@microservice-framework/microservice-router-register": "^3.0.0",
+    "axios": "^1.8.1",
     "debug": "^4.4.0",
     "dotenv": "^16.4.7"
   },

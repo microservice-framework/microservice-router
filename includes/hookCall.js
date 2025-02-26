@@ -3,37 +3,40 @@
  */
 import debug from './debug.js';
 import findHookTarget from './findHookTarget.js';
+import signature from './signature.js';
+import getMinLoadedRouter from './getMinLoadedRouter.js';
 
-export default async function (targetRequest, phase) {
-  let getHeaders = function (router, hookType) {
-    let headers = {};
-    // TODO verify date,content-type, transfer-encoding headers
-    let skipHeaders = [
-      'host', // issue to properly connect
-      'connection', // if it is closed, behavior is unexpected
-      'transfer-encoding', //we need to ignore that one.
-      'content-length', //issue with recounting length of the package
-    ];
-    for (var i in targetRequest.requestDetails.headers) {
-      if (skipHeaders.indexOf(i) != -1) {
-        continue;
-      }
-      headers[i] = targetRequest.requestDetails.headers[i];
+let getHeaders = function (router, hookType, phase, options) {
+  let headers = {};
+  // TODO verify date,content-type, transfer-encoding headers
+  let skipHeaders = [
+    'host', // issue to properly connect
+    'connection', // if it is closed, behavior is unexpected
+    'transfer-encoding', //we need to ignore that one.
+    'content-length', //issue with recounting length of the package
+  ];
+  for (var i in options.request.headers) {
+    if (skipHeaders.indexOf(i) != -1) {
+      continue;
     }
-    for (var i in router.matchVariables) {
-      headers['mfw-' + i] = router.matchVariables[i];
-    }
-    headers['x-origin-url'] = targetRequest.route;
-    headers['x-origin-method'] = targetRequest.method;
-    headers['x-hook-phase'] = phase;
-    headers['x-hook-type'] = hookType;
-    headers['x-endpoint-scope'] = targetRequest.endpoint.scope;
-    debug.debug('%s headers %O', targetRequest.route, headers);
-    return headers;
-  };
+    headers[i] = options.request.headers[i];
+  }
+  for (var i in router.matchVariables) {
+    headers['mfw-' + i] = router.matchVariables[i];
+  }
+  headers['x-origin-url'] = options.route;
+  headers['x-origin-method'] = options.method;
+  headers['x-hook-phase'] = phase;
+  headers['x-hook-type'] = hookType;
+  headers['x-endpoint-scope'] = options.endpoint.scope;
+  debug.debug('%s headers %O', options.route, headers);
+  return headers;
+};
+
+export default async function (options, phase) {
   // send Broadcast
-  let broadcastTargets = findHookTarget(targetRequest, phase, 'broadcast');
-  debug.debug('Bradcast: Phase %s for %s result: %O', phase, targetRequest.route, broadcastTargets);
+  let broadcastTargets = findHookTarget(options, phase, 'broadcast');
+  debug.debug('Bradcast: Phase %s for %s result: %O', phase, options.route, broadcastTargets);
   if (broadcastTargets instanceof Array) {
     let getBroadcastRequest = function () {
       if (broadcastTargets instanceof Error) {
@@ -43,15 +46,15 @@ export default async function (targetRequest, phase) {
         return false;
       }
       let router = broadcastTargets.pop();
-      debug.log('Notify route %s result %O', targetRequest.route, router);
-      let headers = getHeaders(router, 'broadcast');
+      debug.log('Notify route %s result %O', options.route, router);
+      let headers = getHeaders(router, 'broadcast', phase, options);
       // Sign request for hook
-      headers['x-hook-signature'] = 'sha256=' + signature('sha256', targetRequest.requestDetails._buffer, router.secureKey);
+      headers['x-hook-signature'] = 'sha256=' + signature('sha256', options.request._buffer, router.secureKey);
       return {
-        uri: router.url + targetRequest.path,
+        uri: router.url + options.path,
         method: 'NOTIFY',
         headers: headers,
-        body: targetRequest.requestDetails._buffer,
+        body: options.request._buffer,
       };
     };
     let callbackBroadcastRequest = function (err, response, body) {
@@ -62,15 +65,15 @@ export default async function (targetRequest, phase) {
       debug.log('broadcast sent');
       // If more in queue left - send more
       if (broadcastTargets.length) {
-        _request(getBroadcastRequest, callbackBroadcastRequest, targetRequest);
+        _request(getBroadcastRequest, callbackBroadcastRequest, options);
       }
     };
-    _request(getBroadcastRequest, callbackBroadcastRequest, targetRequest);
+    _request(getBroadcastRequest, callbackBroadcastRequest, options);
   }
 
   // send Notify
-  let notifyTargets = findHookTarget(targetRequest, phase, 'notify');
-  debug.debug('Notify: Phase %s for %s result: %O', phase, targetRequest.route, notifyTargets);
+  let notifyTargets = findHookTarget(options, phase, 'notify');
+  debug.debug('Notify: Phase %s for %s result: %O', phase, options.route, notifyTargets);
   if (notifyTargets instanceof Array) {
     let notifyGroups = [];
     for (let target of notifyTargets) {
@@ -89,7 +92,7 @@ export default async function (targetRequest, phase) {
         if (!currentNotifyGroup) {
           return false;
         }
-        let notifyGroupTargets = findHookTarget(targetRequest, phase, 'notify', currentNotifyGroup);
+        let notifyGroupTargets = findHookTarget(options, phase, 'notify', currentNotifyGroup);
         debug.debug('Notify: Phase %s result: %O', phase, notifyGroupTargets);
         if (notifyGroupTargets instanceof Error) {
           return notifyGroupTargets;
@@ -104,16 +107,16 @@ export default async function (targetRequest, phase) {
           // TODO: add diferent strategy to choose one of the routes
           router = getMinLoadedRouter(notifyGroupTargets);
         }
-        debug.log('Notify route %s result %O', targetRequest.route, router);
-        let headers = getHeaders(router, 'notify');
+        debug.log('Notify route %s result %O', options.route, router);
+        let headers = getHeaders(router, 'notify', phase, options);
         headers['x-hook-group'] = currentNotifyGroup;
         // Sign request for hook
-        headers['x-hook-signature'] = 'sha256=' + signature('sha256', targetRequest.requestDetails._buffer, router.secureKey);
+        headers['x-hook-signature'] = 'sha256=' + signature('sha256', options.request._buffer, router.secureKey);
         return {
-          uri: router.url + targetRequest.path,
+          uri: router.url + options.path,
           method: 'NOTIFY',
           headers: headers,
-          body: targetRequest.requestDetails._buffer,
+          body: options.request._buffer,
         };
       };
       let callbackNotifyRequest = function (err, response, body) {
@@ -124,16 +127,16 @@ export default async function (targetRequest, phase) {
         // If more groups left - send more
         if (notifyGroups.length) {
           currentNotifyGroup = notifyGroups.shift();
-          _request(getNotifyRequest, callbackNotifyRequest, targetRequest);
+          _request(getNotifyRequest, callbackNotifyRequest, options);
         }
       };
-      _request(getNotifyRequest, callbackNotifyRequest, targetRequest);
+      _request(getNotifyRequest, callbackNotifyRequest, options);
     }
   }
 
   // send adapter
-  let adapterTargets = findHookTarget(targetRequest, phase, 'adapter');
-  debug.debug('Adapter: Phase %s for %s result: %O', phase, targetRequest.route, adapterTargets);
+  let adapterTargets = findHookTarget(options, phase, 'adapter');
+  debug.debug('Adapter: Phase %s for %s result: %O', phase, options.route, adapterTargets);
   if (adapterTargets instanceof Error) {
     // No adapters found. return true, no error but nothing to process.
     debug.debug('No adapter groups found');
@@ -160,7 +163,7 @@ export default async function (targetRequest, phase) {
     if (!currentAdapterGroup) {
       return false;
     }
-    let adapterGroupTargets = findHookTarget(targetRequest, phase, 'adapter', currentAdapterGroup);
+    let adapterGroupTargets = findHookTarget(options, phase, 'adapter', currentAdapterGroup);
     if (adapterGroupTargets instanceof Error) {
       return adapterGroupTargets;
     }
@@ -174,16 +177,16 @@ export default async function (targetRequest, phase) {
       // TODO: add diferent strategy to choose one of the routes
       router = getMinLoadedRouter(adapterGroupTargets);
     }
-    debug.log('Notify route %s result %O', targetRequest.route, router);
-    let headers = getHeaders(router, 'adapter');
+    debug.log('Notify route %s result %O', options.route, router);
+    let headers = getHeaders(router, 'adapter', phase, options);
     headers['x-hook-group'] = currentAdapterGroup;
     // Sign request for hook
-    headers['x-hook-signature'] = 'sha256=' + signature('sha256', targetRequest.requestDetails._buffer, router.secureKey);
+    headers['x-hook-signature'] = 'sha256=' + signature('sha256', options.request._buffer, router.secureKey);
     return {
-      uri: router.url + targetRequest.path,
+      uri: router.url + options.path,
       method: 'NOTIFY',
       headers: headers,
-      body: targetRequest.requestDetails._buffer,
+      body: options.request._buffer,
     };
   };
   let callbackAdapterRequest = function (err, response, body) {
@@ -192,33 +195,32 @@ export default async function (targetRequest, phase) {
       if (err) {
         debug.log('adapter failed %O', err);
         // TODO status header for adapter
-        targetRequest.requestDetails.headers[headerStatusName] = 'error: ' + err.message;
+        options.request.headers[headerStatusName] = 'error: ' + err.message;
       } else {
         debug.log('Adapter failed with code: %s body: %s', response.statusCode, body);
         for (var i in response.headers) {
           if (i.substring(0, 6) == 'x-set-') {
             let headerName = i.substr(6);
-            targetRequest.requestDetails.headers[headerName] = response.headers[i];
+            options.request.headers[headerName] = response.headers[i];
           }
         }
       }
     } else {
       debug.log('adapter processed');
-      targetRequest.requestDetails._buffer = body;
+      options.request._buffer = body;
       // need to set headers x-set-XXXXX
       debug.debug('Adapter Headers received: %O code: %s', response.headers, response.statusCode);
       for (var i in response.headers) {
         if (i.substring(0, 6) == 'x-set-') {
           let headerName = i.substr(6);
-          targetRequest.requestDetails.headers[headerName] = response.headers[i];
+          options.request.headers[headerName] = response.headers[i];
         }
       }
-      delete targetRequest.requestDetails.headers['content-length'];
+      delete options.request.headers['content-length'];
       if (phase == 'before') {
         // resign it
-        if (targetRequest.requestDetails.headers.signature) {
-          targetRequest.requestDetails.headers.signature =
-            'sha256=' + signature('sha256', targetRequest.requestDetails._buffer, targetRequest.endpoint.secureKey);
+        if (options.request.headers.signature) {
+          options.request.headers.signature = 'sha256=' + signature('sha256', options.request._buffer, options.endpoint.secureKey);
         }
       }
     }
@@ -226,10 +228,10 @@ export default async function (targetRequest, phase) {
     // If more groups left - send more
     if (adapterGroups.length) {
       currentAdapterGroup = adapterGroups.shift();
-      return _request(getAdapterRequest, callbackAdapterRequest, targetRequest);
+      return _request(getAdapterRequest, callbackAdapterRequest, options);
     }
     // return back via callback
     callback();
   };
-  _request(getAdapterRequest, callbackAdapterRequest, targetRequest);
+  _request(getAdapterRequest, callbackAdapterRequest, options);
 }

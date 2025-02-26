@@ -16,8 +16,8 @@ const updateRouteTable = async function () {
   let db = client.db(process.env.MONGO_DB);
   let collection = db.collection(process.env.MONGO_TABLE);
   try {
-    let query = {}
-    let options = {}
+    let query = {};
+    let options = {};
     let results = await collection.find(query, options).toArray();
     if (!results || results.length == 0) {
       debug.debug('No records found');
@@ -42,7 +42,7 @@ const updateRouteTable = async function () {
       }
     }
     debug.debug('Updated router table %O', newServices);
-    globalServices = newServices
+    globalServices = newServices;
   } catch (err) {
     debug.debug('updateRouteVariable:find err: %O', err);
     return false;
@@ -51,14 +51,11 @@ const updateRouteTable = async function () {
       await client.close(); // Ensure DB connection is closed
     }
   }
-  return true
-}
+  return true;
+};
 
-const getRoutes = function(){
-  return globalServices;
-}
+const getRoutes = function () {
+  return JSON.parse(JSON.stringify(globalServices));
+};
 
-export {
-  updateRouteTable,
-  getRoutes,
-}
+export { updateRouteTable, getRoutes };
