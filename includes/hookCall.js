@@ -1,3 +1,6 @@
+/**
+ * Process before Hooks.
+ */
 import debug from './debug.js';
 import findHookTarget from './findHookTarget.js';
 

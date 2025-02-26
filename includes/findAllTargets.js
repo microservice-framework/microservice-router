@@ -1,3 +1,6 @@
+/**
+ * Find all routes.
+ */
 import debug from './debug.js';
 
 export default function (targetRequest, type) {

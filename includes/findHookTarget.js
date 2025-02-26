@@ -1,3 +1,6 @@
+/**
+ * Find all hook routes by stage.
+ */
 import debug from './debug.js';
 import findAllTargets from './findAllTargets.js';
 
