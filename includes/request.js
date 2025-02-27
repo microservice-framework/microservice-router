@@ -12,6 +12,9 @@ export default async function (requestOptions) {
     return err;
   }
 
+  // disable parse JS
+  requestOptions.transformResponse = (x) => x;
+
   debug.debug('requestOptions', requestOptions);
 
   return axios
