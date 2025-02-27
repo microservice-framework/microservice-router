@@ -1,43 +1,24 @@
 import debug from './debug.js';
 
-export default async function () {
-  const config = {
-    baseURL: settings.URL,
-    headers: {},
-  };
-  if (settings.headers) {
-    config.headers = settings.headers;
-  }
-  if (settings.accessToken) {
-    config.headers['Access-Token'] = settings.accessToken;
+export default async function (requestOptions) {
+  if (requestOptions.headers === undefined) {
+    requestOptions.headers = {};
   }
 
-  // If we are running under node, set version User-agent.
-  if (process && process.env && process.env.npm_package_version) {
-    config.headers['User-Agent'] = 'MicroserviceClient.' + process.env.npm_package_name + '.' + process.env.npm_package_version;
+  // Validate URI
+  try{
+    new URL(requestOptions.url);
+  } catch(err) {
+    return err
   }
+  
+  debug.debug('requestOptions', requestOptions);
 
-  if (reqOptions.headers === undefined) {
-    reqOptions.headers = {};
-  }
-
-  const signatureMethods = ['PUT', 'SEARCH', 'PATCH', 'POST', 'OPTIONS'];
-
-  if (this.settings.secureKey && signatureMethods.indexOf(reqOptions.method.toUpperCase()) !== -1) {
-    const hash = await signature(JSON.stringify(reqOptions.data), this.settings.secureKey);
-    reqOptions.headers.signature = 'sha256=' + hash;
-    reqOptions.headers['Access-Token'] = false;
-  }
-
-  debug.debug('reqOptions', reqOptions);
-
-  return axios
-    .create(config)
-    .request(reqOptions)
+  return axios.request(requestOptions)
     .then(function (response) {
-      debug.debug('request', response.config.headers);
+      debug.debug('request', requestOptions);
       debug.debug('response', response);
-      debug.log(response.config.method.toUpperCase(), response.config.url, response.status);
+      debug.log(requestOptions.method.toUpperCase(), requestOptions.url, response.status);
       return {
         code: response.status,
         answer: response.data,
@@ -49,7 +30,7 @@ export default async function () {
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
-        debug.log(error.response.config.method.toUpperCase(), error.response.config.url, error.response.status, error.response.data.message);
+        debug.log(requestOptions.method.toUpperCase(), requestOptions.url, error.response.status, error.response.data.message);
         return {
           code: error.response.status,
           error: error.response.data,
