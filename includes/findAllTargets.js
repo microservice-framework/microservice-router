@@ -5,7 +5,7 @@ import debug from './debug.js';
 import { getRoutes } from './Routes.js';
 import matchRoute from './matchRoute.js';
 
-export default function (type, params ) {
+export default function (type, params) {
   debug.debug('Find all routes %s', params.route);
   // get available routes
   let globalServices = getRoutes();

@@ -33,18 +33,16 @@ let getHeaders = function (router, hook, options) {
   return headers;
 };
 
-
 export default async function (hook, options) {
   // send a broadcast message
-  hook.type = 'broadcast'
+  hook.type = 'broadcast';
   let broadcastTargets = findHookTarget(hook, options);
   if (broadcastTargets instanceof Array) {
     // if we have broadcast targets, send to each target a request
     while (broadcastTargets.length) {
-      
       let router = broadcastTargets.pop();
       debug.log('Bradcast Notify route %s result %O', options.route, router);
-      
+
       let headers = getHeaders(router, hook, options);
       headers['x-hook-signature'] = 'sha256=' + signature('sha256', options.request._buffer, router.secureKey);
 
@@ -52,18 +50,18 @@ export default async function (hook, options) {
         url: router.url + options.path,
         method: 'NOTIFY',
         headers: headers,
-        data: options.request._buffer
-      }
-      let response = await request(requestOptions)
+        data: options.request._buffer,
+      };
+      let response = await request(requestOptions);
       debug.debug('NOTIFY', hook, options, response);
-      if(response.error) {
+      if (response.error) {
         debug.log('broadcast failed %O', response.error);
       }
     }
   }
 
   //send a notify - group based
-  hook.type = 'notify'
+  hook.type = 'notify';
   // get groups first
   let notifyTargets = findHookTarget(hook, options);
   if (notifyTargets instanceof Array) {
@@ -80,8 +78,8 @@ export default async function (hook, options) {
     // send notification to each group instance
     while (notifyGroups.length) {
       let currentNotifyGroup = notifyGroups.shift();
-      let groupHook = JSON.parse(JSON.stringify(hook))
-      groupHook.group = currentNotifyGroup
+      let groupHook = JSON.parse(JSON.stringify(hook));
+      groupHook.group = currentNotifyGroup;
       let notifyGroupTargets = findHookTarget(groupHook, options);
       debug.debug('Notify: Phase %s result: %O', phase, notifyGroupTargets);
       if (!notifyGroupTargets.length) {
@@ -103,18 +101,18 @@ export default async function (hook, options) {
         url: router.url + options.path,
         method: 'NOTIFY',
         headers: headers,
-        data: options.request._buffer
-      }
-      let response = await request(requestOptions)
+        data: options.request._buffer,
+      };
+      let response = await request(requestOptions);
       debug.debug('NOTIFY', groupHook, options, response);
-      if(response.error) {
+      if (response.error) {
         debug.log('notification failed %O', response.error);
       }
     }
   }
 
   // send adapter
-  hook.type = 'adapter'
+  hook.type = 'adapter';
   // get groups first
   let adapterTargets = findHookTarget(hook, options);
   if (adapterTargets instanceof Array) {
@@ -131,8 +129,8 @@ export default async function (hook, options) {
     // send notification to each group instance
     while (adapterGroups.length) {
       let currentAdapterGroup = adapterGroups.shift();
-      let groupHook = JSON.parse(JSON.stringify(hook))
-      groupHook.group = currentAdapterGroup
+      let groupHook = JSON.parse(JSON.stringify(hook));
+      groupHook.group = currentAdapterGroup;
 
       let adapterGroupTargets = findHookTarget(groupHook, options);
       debug.debug('Adapter: Phase %s result: %O', phase, adapterGroupTargets);
@@ -155,12 +153,12 @@ export default async function (hook, options) {
         url: router.url + options.path,
         method: 'NOTIFY',
         headers: headers,
-        data: options.request._buffer
-      }
+        data: options.request._buffer,
+      };
       let headerStatusName = 'x-hook-adapter-status-' + currentAdapterGroup + '-' + groupHook.phase;
-      let response = await request(requestOptions)
+      let response = await request(requestOptions);
       debug.debug('NOTIFY', groupHook, options, response);
-      if(response.error) {
+      if (response.error) {
         debug.log('notification failed %O', response.error);
       }
     }

@@ -6,15 +6,16 @@ export default async function (requestOptions) {
   }
 
   // Validate URI
-  try{
+  try {
     new URL(requestOptions.url);
-  } catch(err) {
-    return err
+  } catch (err) {
+    return err;
   }
-  
+
   debug.debug('requestOptions', requestOptions);
 
-  return axios.request(requestOptions)
+  return axios
+    .request(requestOptions)
     .then(function (response) {
       debug.debug('request', requestOptions);
       debug.debug('response', response);

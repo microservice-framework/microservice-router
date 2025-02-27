@@ -3,13 +3,13 @@ import debug from './debug.js';
 import findAllTargets from '../findAllTargets.js';
 import hookCall from '../hookCall.js';
 import getMinLoadedRouter from '..getMinLoadedRouter.js';
-import hook from '../hook.js'
+import hook from '../hook.js';
 
 export default async function (params, request) {
   debug.debug('Route base: %s', route);
   params.count = 0;
   params.request = request;
-  let endpointTargets = findAllTargets('handler', params );
+  let endpointTargets = findAllTargets('handler', params);
   if (endpointTargets instanceof Error) {
     debug.debug('Route %s err %O', route, endpointTargets);
     return endpointTargets;
@@ -19,5 +19,5 @@ export default async function (params, request) {
     scope: endpointTargets[0].scope,
     secureKey: endpointTargets[0].secureKey,
   };
-  await hook({phase: 'before'}, params)
+  await hook({ phase: 'before' }, params);
 }

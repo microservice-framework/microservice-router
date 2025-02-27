@@ -13,11 +13,11 @@ import findAllTargets from './findAllTargets.js';
  *   group:
  * }
  * options:
- * 
+ *
  *  */
 export default function (hook, options) {
   debug.debugHook('Find all hooks route: %s phase: %s type: %s group: %s', options.route, hook.phase, hook.type, hook.group);
-  
+
   let allHookEndpoints = findAllTargets('hook', options);
   if (allHookEndpoints instanceof Error) {
     return allHookEndpoints;
