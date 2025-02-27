@@ -1,9 +1,9 @@
-import axios from 'axios';
 import debug from './debug.js';
 import findAllTargets from '../findAllTargets.js';
-import hookCall from '../hookCall.js';
 import getMinLoadedRouter from '..getMinLoadedRouter.js';
 import hook from '../hook.js';
+import getHeaders from './getHeaders.js';
+import AxiosRequest from '../request.js';
 
 export default async function (params, request) {
   debug.debug('Route base: %s', params.route);
@@ -53,5 +53,57 @@ export default async function (params, request) {
     headers: headers,
     data: params.request._buffer,
   };
-  return request(requestOptions);
+  let startTime = Date.now();
+  let answer = await AxiosRequest(requestOptions);
+  let endTime = Date.now();
+  // metric send
+  let metricTargets = findAllTargets('metric', params);
+  if (metricTargets instanceof Array) {
+    // if we have broadcast targets, send to each target a request
+    while (metricTargets.length) {
+      let router = metricTargets.pop();
+      debug.log('Metric Notify route %s result %O', params.route, router);
+
+      let code = 0;
+      if (answer.code) {
+        code = answer.code;
+      }
+
+      let metricJSON = {
+        startTime: startTime,
+        endTime: endTime,
+        code: answer.code,
+        method: requestOptions.method,
+        headers: requestOptions.headers,
+        uri: requestOptions.uri,
+        route: params.route,
+      };
+
+      if (answer.answer && answer.answer.length) {
+        metricJSON.responseLength = answer.answer.length;
+      }
+
+      if (!router.meta) {
+        metricJSON.request = params.request._buffer;
+        metricJSON.response = answer.answer;
+      }
+      let metricBody = JSON.stringify(metricJSON);
+      let headers = getHeaders(router, 'metric');
+      headers['x-hook-signature'] = 'sha256=' + signature('sha256', metricBody, router.secureKey);
+
+      let requestOptions = {
+        url: router.url + params.path,
+        method: 'NOTIFY',
+        headers: headers,
+        data: metricBody,
+        timeout: 300, // For metrics we limit to 300 ms.
+      };
+      let response = await AxiosRequest(requestOptions);
+      debug.debug('METRIC', params, response, metricBody);
+      if (response.error) {
+        debug.log('METRIC failed %O', response.error);
+      }
+    }
+  }
+  return answer;
 }
