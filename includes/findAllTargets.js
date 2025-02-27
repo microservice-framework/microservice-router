@@ -5,8 +5,8 @@ import debug from './debug.js';
 import { getRoutes } from './Routes.js';
 import matchRoute from './matchRoute.js';
 
-export default function (options, type) {
-  debug.debug('Find all routes %s', options.route);
+export default function (type, params ) {
+  debug.debug('Find all routes %s', params.route);
   // get available routes
   let globalServices = getRoutes();
   var availableRoutes = [];
@@ -22,15 +22,15 @@ export default function (options, type) {
     }
 
     routeItem.matchVariables = {};
-    if (matchRoute(options, routeItem)) {
+    if (matchRoute(params, routeItem)) {
       availableRoutes.push(routeItem);
     }
   }
 
-  debug.debug('Available routes type: %s route: %s availableRoutes: %s', type, options.route, JSON.stringify(availableRoutes, null, 2));
+  debug.debug('Available routes type: %s route: %s availableRoutes: %s', type, params.route, JSON.stringify(availableRoutes, null, 2));
 
   if (availableRoutes.length == 0) {
-    debug.debug('Not found for %s', options.route);
+    debug.debug('Not found for %s', params.route);
     return new Error('Endpoint not found');
   }
 

@@ -4,9 +4,20 @@
 import debug from './debug.js';
 import findAllTargets from './findAllTargets.js';
 
-export default function (options, phase, type, group) {
+/*
+ *
+ *
+ * hook {
+ * phase:
+ * type:
+ * group:
+ * }
+ * options:
+ * 
+ *  */
+export default function (hook, options, phase, type, group) {
   debug.debugHook('Find all hooks route: %s phase: %s type: %s group: %s', options.route, phase, type, group);
-  let allHookTargets = findAllTargets(options, 'hook');
+  let allHookTargets = findAllTargets('hook', options);
   if (allHookTargets instanceof Error) {
     return allHookTargets;
   }

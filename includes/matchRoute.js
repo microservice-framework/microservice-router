@@ -1,12 +1,12 @@
 import debug from './debug.js';
 import checkConditions from './checkConditions.js';
 
-export default function (options, routeItem) {
-  let routeItems = options.route.split('/');
+export default function (params, routeItem) {
+  let routeItems = params.route.split('/');
 
   if (routeItem.type == 'metric') {
     if (routeItem.conditions) {
-      if (!checkConditions(routeItem.conditions, options)) {
+      if (!checkConditions(routeItem.conditions, params)) {
         return false;
       }
     }
@@ -14,7 +14,7 @@ export default function (options, routeItem) {
   }
   if (routeItem.path && routeItem.path.length == 1 && routeItem.path[0] == '*') {
     if (routeItem.conditions) {
-      if (!checkConditions(routeItem.conditions, options)) {
+      if (!checkConditions(routeItem.conditions, params)) {
         return false;
       }
     }
@@ -24,13 +24,13 @@ export default function (options, routeItem) {
   let checkPath = function (paths) {
     for (let path of paths) {
       // If route qual saved path
-      if (path == options.route) {
+      if (path == params.route) {
         return true;
       }
 
       // If routeItems.length == 1, and did not match
       if (routeItems.length == 1) {
-        if (path != options.route) {
+        if (path != params.route) {
           continue;
         }
       }
@@ -60,7 +60,7 @@ export default function (options, routeItem) {
     return false;
   }
   if (routeItem.conditions) {
-    if (!checkConditions(routeItem.conditions, options)) {
+    if (!checkConditions(routeItem.conditions, params)) {
       return false;
     }
   }
