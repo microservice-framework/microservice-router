@@ -31,8 +31,17 @@ let mservice = new Microservice({
   secureKey: process.env.SECURE_KEY,
 });
 
-new Cluster({
-  singleton: RegisterLoader,
+const cluster = new Cluster({
+  singleton: function (isStart, variables) {
+    if (isStart) {
+      let interval = setInterval(() => {
+        cleanupExpired();
+      }, process.env.ROUTER_PERIOD);
+      return variables({ interval: interval });
+    }
+    debug.debug('stop cleaner');
+    clearInterval(variables.interval);
+  },
   validate: mservice.validate.bind(mservice),
   methods: {
     POST: async function (data, request) {
@@ -67,25 +76,11 @@ const cleanupExpired = async function () {
   }
 };
 
-function RegisterLoader(isStart, variables) {
-  let cluster = this;
-  debug.debug('RegisterLoader');
-  if (isStart) {
-    let register = new ClientRegister({
-      route: {
-        path: ['register'],
-        url: process.env.SELF_URL,
-        secureKey: process.env.SECURE_KEY,
-      },
-      cluster: cluster.cluster,
-    });
-    let interval = setInterval(() => {
-      cleanupExpired();
-    }, process.env.ROUTER_PERIOD);
-    variables({ register: register, interval: interval });
-  } else {
-    debug.debug('stop cleaner');
-    clearInterval(variables.interval);
-    variables.register.shutdown();
-  }
-}
+new ClientRegister({
+  route: {
+    path: ['register'],
+    url: process.env.SELF_URL,
+    secureKey: process.env.SECURE_KEY,
+  },
+  cluster: cluster.cluster,
+});
