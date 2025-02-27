@@ -13,11 +13,6 @@ const debug = {
   debug: debugF('router:debug'),
 };
 
-let interval = 6000;
-if (process.env.INTERVAL) {
-  interval = process.env.INTERVAL;
-}
-
 // Load environment variables from .env file
 import dotenv from 'dotenv';
 dotenv.config();
@@ -34,16 +29,23 @@ let mservice = new Microservice({
 const cluster = new Cluster({
   singleton: function (isStart, variables) {
     if (isStart) {
-      let interval = setInterval(() => {
+      let interval = 6000;
+      if (process.env.INTERVAL) {
+        interval = process.env.INTERVAL;
+      }
+      let cleanup = setInterval(() => {
         cleanupExpired();
-      }, process.env.ROUTER_PERIOD);
-      return variables({ interval: interval });
+      }, interval);
+      return variables({ interval: cleanup });
     }
     debug.debug('stop cleaner');
     clearInterval(variables.interval);
   },
   validate: mservice.validate.bind(mservice),
   methods: {
+    IPM: function (type, message) {
+      debug.debug('message', type, message);
+    },
     POST: async function (data, request) {
       if (!data.online) {
         data.online = true;
@@ -59,19 +61,19 @@ const cluster = new Cluster({
 });
 
 const cleanupExpired = async function () {
-  debug.debug('cleanup tokens');
+  debug.debug('cleanup routes');
   let searchToken = {
-    expireAt: { $lt: Date.now() },
+    changed: { $lt: Date.now() - 60 * 1000 },
   };
   let request = {
     headers: {},
   };
   let response = await mservice.search(searchToken, request);
   if (response.code != 404) {
-    for (let token of response.answer) {
-      debug.debug('found token %O', token);
-      let deleteResponse = await mservice.delete(token.accessToken, request);
-      debug.debug('deleted token %O', deleteResponse);
+    for (let route of response.answer) {
+      debug.debug('found route %O', route);
+      let deleteResponse = await mservice.delete(route.id, request);
+      debug.debug('deleted route %O', deleteResponse);
     }
   }
 };
