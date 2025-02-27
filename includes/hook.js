@@ -160,7 +160,39 @@ export default async function (hook, options) {
       debug.debug('NOTIFY', groupHook, options, response);
       if (response.error) {
         debug.log('notification failed %O', response.error);
+        options.request.headers[headerStatusName] = 'error: ' + response.error.message;
+        // process next one
+        continue;
       }
-    }
+      if (response.code != 200) {
+        debug.log('Adapter failed with code: %s body: %s', response.code, response.answer);
+        for (var i in response.headers) {
+          if (i.substring(0, 6) == 'x-set-') {
+            let headerName = i.substr(6);
+            options.request.headers[headerName] = response.headers[i];
+          }
+        }
+        delete options.request.headers['content-length'];
+        // process next one
+        continue;
+      }
+      debug.log('adapter processed');
+      options.request._buffer = response.answer;
+      // need to set headers x-set-XXXXX
+      debug.debug('Adapter Headers received: %O code: %s', response.headers, response.code);
+      for (var i in response.headers) {
+        if (i.substring(0, 6) == 'x-set-') {
+          let headerName = i.substr(6);
+          options.request.headers[headerName] = response.headers[i];
+        }
+      }
+      delete options.request.headers['content-length'];
+      if (groupHook.phase == 'before') {
+        // resign it
+        if (options.request.headers.signature) {
+          options.request.headers.signature = 'sha256=' + signature('sha256', options.request._buffer, options.endpoint.secureKey);
+        }
+      }
+    } //while
   }
 }
