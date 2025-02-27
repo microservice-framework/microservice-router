@@ -3,6 +3,7 @@ import debug from './debug.js';
 import findAllTargets from '../findAllTargets.js';
 import hookCall from '../hookCall.js';
 import getMinLoadedRouter from '..getMinLoadedRouter.js';
+import hook from '../hook.js'
 
 export default async function (params, request) {
   debug.debug('Route base: %s', route);
@@ -18,4 +19,5 @@ export default async function (params, request) {
     scope: endpointTargets[0].scope,
     secureKey: endpointTargets[0].secureKey,
   };
+  await hook({phase: 'before'}, params)
 }
