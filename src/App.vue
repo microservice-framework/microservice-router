@@ -49,7 +49,7 @@ export default {
   data: function () {
     return {
       error: '',
-      isSecure: true,
+      isSecure: false,
       routes: false,
       accessKey: '',
       isDarkMode: false,
