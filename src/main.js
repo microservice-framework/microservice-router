@@ -13,8 +13,7 @@ APP.use(Debug, window.DEBUG ? window.DEBUG : true);
 
 // API this.$api global variable
 import ApiClient from '@microservice-framework/vue-api-client';
-import apiSettings from './settings/api';
-APP.use(ApiClient, apiSettings);
+APP.use(ApiClient, {});
 
 APP.mount('#app');
 

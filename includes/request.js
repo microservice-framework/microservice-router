@@ -14,7 +14,7 @@ export default async function (requestOptions) {
   }
 
   // disable parse JS
-  requestOptions.transformResponse = (x) => x;
+  //requestOptions.transformResponse = (x) => x;
 
   debug.debug('requestOptions', requestOptions);
 

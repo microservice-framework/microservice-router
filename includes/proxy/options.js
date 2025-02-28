@@ -4,7 +4,7 @@ import proxyRequest from './proxyRequest.js';
 export default async function (data, request) {
   applyAccessToken(request);
   if (request.headers['access-control-request-method']) {
-    return callback(null, {
+    return {
       code: 200,
       answer: {},
       headers: {
@@ -13,7 +13,7 @@ export default async function (data, request) {
         'Access-Control-Allow-Headers': 'content-type, signature, access_token,' + ' token, Access-Token, scope, Scope',
         'Access-Control-Expose-Headers': 'x-total-count',
       },
-    });
+    };
   }
   let route = request.url;
   let path = '';

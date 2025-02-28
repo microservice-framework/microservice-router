@@ -12,7 +12,17 @@ export default async function (params, request) {
   let endpointTargets = findAllTargets('handler', params);
   if (endpointTargets instanceof Error) {
     debug.debug('Route %s err %O', params.route, endpointTargets);
-    return endpointTargets;
+    return {
+      code: 404,
+      answer: endpointTargets,
+      error: endpointTargets,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, DELETE, PUT, SEARCH',
+        'Access-Control-Allow-Headers': 'content-type, signature, access_token,' + ' token, Access-Token, scope, Scope',
+        'Access-Control-Expose-Headers': 'x-total-count',
+      },
+    };
   }
   if (!endpointTargets.length) {
     return false;
@@ -56,6 +66,13 @@ export default async function (params, request) {
   };
   let startTime = Date.now();
   let answer = await AxiosRequest(requestOptions);
+
+  // CORS headers
+  answer.headers['Access-Control-Allow-Origin'] = '*';
+  answer.headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS, DELETE, PUT, SEARCH';
+  answer.headers['Access-Control-Allow-Headers'] = 'content-type, signature, access_token,' + ' token, Access-Token, scope, Scope';
+  answer.headers['Access-Control-Expose-Headers'] = 'x-total-count';
+
   let endTime = Date.now();
   // metric send
   let metricTargets = findAllTargets('metric', params);

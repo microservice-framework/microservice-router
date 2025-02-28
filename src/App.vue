@@ -1,41 +1,54 @@
 <template>
   <div class="body">
-    <LoadingView v-if="!isOnline" />
-    <div v-if="isOnline">
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" class="logo" alt="Vite logo" />
-        </a>
-        <a href="https://vuejs.org/" target="_blank">
-          <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-        </a>
+    ffff
+    <div v-if="!isOnline" class="container">
+      <div class="text-center lock">
+        <font-awesome-icon :icon="['fas', 'lock']" />
       </div>
-      <LoginForm v-if="!$auth.isAuthorized" is-register-btn="true" />
-      <div v-if="$auth.isAuthorized">
-        <router-view></router-view>
+      <form class="row g-3" novalidate>
+        <div class="mb-3 input-group">
+          <input
+            id="accessToken"
+            v-model="accessKey"
+            type="text"
+            class="form-control"
+            aria-describedby="accessTokenHelp"
+            placeholder="Access Token"
+          />
+          <button id="button-addon2" class="btn btn-success text-white" type="submit" @click.prevent="checkSecureKey">Submit</button>
+        </div>
+
+        <div id="accessTokenHelp" class="form-text">Access Token or Secure KEY required to navigate API</div>
+      </form>
+      <div v-if="error" class="d-flex justify-content-center">
+        <div class="border border-danger" style="width: 200px">
+          <div class="text-bg-danger ps-2 pe-2 text-center" style="display: inline-block">
+            <font-awesome-icon :icon="['fas', 'exclamation']" />
+          </div>
+          <span class="text-danger ps-2">{{ error }}</span>
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-//import HelloWorld from './components/HelloWorld.vue';
-import LoginForm from './components/Forms/LoginForm.vue';
-import LoadingView from './components/Elements/LoadingView.vue';
 import MicroserviceClient from '@microservice-framework/microservice-client';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faLock } from '@fortawesome/free-solid-svg-icons';
+library.add(faExclamation);
+library.add(faLock);
 
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-}
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
 export default {
   components: {
-    LoadingView,
-    LoginForm,
+    FontAwesomeIcon,
   },
   data: function () {
     return {
+      error: '',
+      accessKey: '',
       isDarkMode: false,
     };
   },
@@ -53,6 +66,24 @@ export default {
     this.applyTheme();
   },
   methods: {
+    checkSecureKey: async function () {
+      this.error = '';
+      var client = new MicroserviceClient({
+        URL: 'http://127.0.0.1:8080/',
+        secureKey: this.accessKey,
+      });
+      let response = await client.search('register', {});
+      if (response.error) {
+        this.error = response.error.message;
+      }
+      if (response.code == 403) {
+        this.error = 'Access Denied';
+      }
+      if (response.code == 404) {
+        this.error = 'Register is not available';
+      }
+      this.$debug.log('checkSecureKey', response);
+    },
     applyTheme: function () {
       let isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
       document.documentElement.setAttribute('data-bs-theme', isDarkMode ? 'dark' : 'light');
@@ -61,31 +92,11 @@ export default {
       this.$auth.logOut();
     },
     initAuth: function () {
-      var accessToken = getCookie('accessToken');
+      var accessToken = window.location.search.substring(1);
       if (accessToken) {
         this.checkAccessTokenOnINIT(accessToken);
         return;
       }
-      if (this.$state.accessToken) {
-        this.checkAccessTokenOnINIT(this.$state.accessToken);
-        return;
-      }
-      this.loginAnonymous();
-    },
-    loginAnonymous: function () {
-      // get anonymous access token
-      var client = new MicroserviceClient({
-        URL: this.$api.url,
-        headers: { scope: 'auth' },
-      });
-      client.post('auth/user', { domain: 'default.domain' }).then((response) => {
-        this.$debug.log('auth', response);
-        if (response.error) {
-          this.$debug.log('auth failed', response.error);
-          return;
-        }
-        this.$auth.logIn(response.answer);
-      });
     },
     checkAccessTokenOnINIT: function (accessToken) {
       this.$debug.log('checkAccessTokenOnINIT', accessToken);
@@ -98,11 +109,14 @@ export default {
         this.$debug.log('auth', accessToken, response);
         if (response.error) {
           this.$debug.log('auth failed', response.error);
-          return this.loginAnonymous();
         }
-        this.$auth.logIn(response.answer);
       });
     },
   },
 };
 </script>
+<style lang="css" scoped>
+.lock {
+  font-size: 100px;
+}
+</style>
