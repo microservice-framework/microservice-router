@@ -1,6 +1,7 @@
 <template>
   <div class="body">
     ffff
+    {{ routes }}
     <div v-if="!isOnline" class="container">
       <div class="text-center lock">
         <font-awesome-icon :icon="['fas', 'lock']" />
@@ -48,12 +49,17 @@ export default {
   data: function () {
     return {
       error: '',
+      isSecure: true,
+      routes: false,
       accessKey: '',
       isDarkMode: false,
     };
   },
   computed: {
     isOnline: function () {
+      if(this.isSecure) {
+        return true
+      }
       return this.$api.online;
     },
   },
@@ -78,10 +84,14 @@ export default {
       }
       if (response.code == 403) {
         this.error = 'Access Denied';
+        return
       }
       if (response.code == 404) {
         this.error = 'Register is not available';
+        return
       }
+      this.isSecure = true;
+      this.routes = response.answer
       this.$debug.log('checkSecureKey', response);
     },
     applyTheme: function () {
