@@ -57,8 +57,8 @@ export default {
   },
   computed: {
     isOnline: function () {
-      if(this.isSecure) {
-        return true
+      if (this.isSecure) {
+        return true;
       }
       return this.$api.online;
     },
@@ -84,14 +84,14 @@ export default {
       }
       if (response.code == 403) {
         this.error = 'Access Denied';
-        return
+        return;
       }
       if (response.code == 404) {
         this.error = 'Register is not available';
-        return
+        return;
       }
       this.isSecure = true;
-      this.routes = response.answer
+      this.routes = response.answer;
       this.$debug.log('checkSecureKey', response);
     },
     applyTheme: function () {
