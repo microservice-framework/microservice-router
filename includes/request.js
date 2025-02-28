@@ -1,4 +1,5 @@
 import debug from './debug.js';
+import axios from 'axios';
 
 export default async function (requestOptions) {
   if (requestOptions.headers === undefined) {
@@ -39,6 +40,7 @@ export default async function (requestOptions) {
           code: error.response.status,
           error: error.response.data,
           headers: JSON.parse(JSON.stringify(error.response.headers)),
+          answer: error.response.data,
         };
       } else {
         return {

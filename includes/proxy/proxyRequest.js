@@ -1,8 +1,8 @@
-import debug from './debug.js';
+import debug from '../debug.js';
 import findAllTargets from '../findAllTargets.js';
-import getMinLoadedRouter from '..getMinLoadedRouter.js';
+import getMinLoadedRouter from '../getMinLoadedRouter.js';
 import hook from '../hook.js';
-import getHeaders from './getHeaders.js';
+import getHeaders from '../getHeaders.js';
 import AxiosRequest from '../request.js';
 
 export default async function (params, request) {
@@ -11,7 +11,7 @@ export default async function (params, request) {
   params.request = request;
   let endpointTargets = findAllTargets('handler', params);
   if (endpointTargets instanceof Error) {
-    debug.debug('Route %s err %O', route, endpointTargets);
+    debug.debug('Route %s err %O', params.route, endpointTargets);
     return endpointTargets;
   }
   if (!endpointTargets.length) {
@@ -24,10 +24,11 @@ export default async function (params, request) {
     // TODO: add diferent strategy to choose one of the routes
     router = getMinLoadedRouter(endpointTargets);
   }
+  console.log('router', router)
   // Assign endpoint scope and secureKey for params
   params.endpoint = {
-    scope: endpointTargets[0].scope,
-    secureKey: endpointTargets[0].secureKey,
+    scope: router.scope,
+    secureKey: router.secureKey,
   };
   await hook({ phase: 'before' }, params);
 
