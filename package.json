@@ -4,8 +4,21 @@
   "description": "Microservice framework router",
   "type": "module",
   "main": "router-admin.js",
+  "files": [
+    "src/*",
+    "dist/*",
+    "includes/*",
+    "schema/*",
+    "kill.js",
+    "status.js",
+    "router-admin.js",
+    "router-proxy.js"
+  ],
   "scripts": {
     "test": "node_modules/.bin/mocha --timeout 15000",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "start-admin": "DEBUG=http:log,cluster:*,router:log node  --max-old-space-size=520 router-admin.js",
     "start-proxy": "DEBUG=http:log,cluster:*,proxy:log node  --max-old-space-size=520 router-proxy.js",
     "stop-admin": "ADMIN=true node kill.js",
@@ -33,10 +46,21 @@
     "dotenv": "^16.4.7"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-regular-svg-icons": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
+    "@fortawesome/vue-fontawesome": "^3.0.8",
+    "@gormartsen/vue-debug": "^1.0.0",
+    "@microservice-framework/vue-api-client": "^3.0.0",
+    "@vitejs/plugin-vue": "^5.2.1",
+    "bootstrap": "^5.3.3",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.3",
     "prettier": "^3.5.2",
+    "sass": "^1.85.1",
+    "vite": "^6.2.0",
+    "vue": "^3.5.13",
     "vue-eslint-parser": "^9.4.3"
   }
 }
