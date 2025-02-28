@@ -1,4 +1,4 @@
-import debug from './debug';
+import debug from './debug.js';
 
 export default function (router, hook, options) {
   let headers = {};
