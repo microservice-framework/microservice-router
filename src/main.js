@@ -9,7 +9,6 @@ import App from './App.vue';
 
 const APP = createApp(App);
 
-
 APP.use(Debug, window.DEBUG ? window.DEBUG : true);
 
 // API this.$api global variable

@@ -24,7 +24,7 @@ export default async function (params, request) {
     // TODO: add diferent strategy to choose one of the routes
     router = getMinLoadedRouter(endpointTargets);
   }
-  console.log('router', router)
+  console.log('router', router);
   // Assign endpoint scope and secureKey for params
   params.endpoint = {
     scope: router.scope,

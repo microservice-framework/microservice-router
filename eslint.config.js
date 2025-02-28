@@ -15,7 +15,7 @@ export default [
       },
     },
   },
-  ..pluginVue.configs['flat/recommended'],
+  ...pluginVue.configs['flat/recommended'],
   {
     rules: {
       // override/add rules settings here, such as:
