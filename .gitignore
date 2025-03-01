@@ -3,3 +3,4 @@ datastore
 .env
 pidfile
 yarn.lock
+*.pid
