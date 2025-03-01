@@ -39,14 +39,19 @@
       <div class="row">
         <div class="col-xs-12 col-md-6">
           <div class="root">
-            <EndpointList v-for="(endpoint, index) in endpoints" :key="index" :endpoint="endpoint" @click="isEndpoint = endpoint" />
+            <EndpointList
+              v-for="(endpoint, index) in endpoints"
+              :key="index"
+              :endpoint="endpoint"
+              @options="(options) => setOptions(endpoint, options)"
+              @selected="(method) => setEndpointMethod(endpoint, method)"
+            />
           </div>
         </div>
         <div class="col-xs-12 col-md-6">
-          <requestForm :endpoint="isEndpoint" />
+          <requestForm :endpoint="isEndpoint" :method="isMethod" />
         </div>
       </div>
-      <pre>{{ routes }}</pre>
     </div>
   </div>
 </template>
@@ -72,6 +77,7 @@ export default {
   data: function () {
     return {
       isEndpoint: false,
+      isMethod: 'SEARCH',
       toggle: false,
       error: '',
       isSecure: false,
@@ -84,15 +90,19 @@ export default {
   computed: {
     endpoints: function () {
       let endpoints = [];
+      let foundPath = [];
       for (let endpoint of this.routes) {
         for (let path of endpoint.path) {
-          endpoints.push({
-            path: path,
-            scope: endpoint.scope,
-            changed: endpoint.changed,
-            metrics: endpoint.metrics,
-            secureKey: endpoint.secureKey,
-          });
+          if (!foundPath.includes(path)) {
+            foundPath.push(path);
+            endpoints.push({
+              path: path,
+              scope: endpoint.scope,
+              changed: endpoint.changed,
+              metrics: endpoint.metrics,
+              secureKey: endpoint.secureKey,
+            });
+          }
         }
       }
       return endpoints;
@@ -121,6 +131,13 @@ export default {
     this.applyTheme();
   },
   methods: {
+    setEndpointMethod: function (endpoint, method) {
+      this.isEndpoint = endpoint;
+      this.isMethod = method;
+    },
+    setOptions: function (endpoint, options) {
+      endpoint.options = options;
+    },
     checkSecureKey: async function () {
       window.location.hash = this.accessKey;
       this.error = '';
@@ -128,7 +145,7 @@ export default {
         URL: 'http://127.0.0.1:8080/',
         secureKey: this.accessKey,
       });
-      let response = await client.search('register', {});
+      let response = await client.search('register', { type: 'handler' });
       if (response.error) {
         this.error = response.error.message;
       }

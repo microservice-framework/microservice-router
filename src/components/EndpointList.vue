@@ -20,7 +20,9 @@
             <font-awesome-icon :icon="['fas', 'minus']" />
             <font-awesome-icon :icon="['fas', 'minus']" />
             <span class="operation">
-              <a href class="action"> {{ index }} /:{{ options.id.title }} </a>
+              <a href class="action" @click.prevent="selectedMethod(index)">
+                {{ index }} <span v-if="isIdMethod(index)">/:{{ options.id.title }} </span></a
+              >
             </span>
           </span>
           <p class="description">{{ method.description }}</p>
@@ -49,6 +51,7 @@ export default {
       default: false,
     },
   },
+  emits: ['options', 'selected'],
   data: function () {
     return {
       error: false,
@@ -56,9 +59,18 @@ export default {
     };
   },
   mounted: function () {
+    if (this.endpoint.options) {
+      this.options = his.endpoint.options;
+    }
     this.getOptions();
   },
   methods: {
+    isIdMethod: function (method) {
+      return ['GET', 'DELETE', 'PUT'].includes(method);
+    },
+    selectedMethod: function (method) {
+      this.$emit('selected', method);
+    },
     getOptions: async function () {
       var client = new MicroserviceClient({
         URL: 'http://127.0.0.1:8080/',
@@ -71,6 +83,7 @@ export default {
         this.error = response.error.message;
       }
       this.options = response.answer;
+      this.$emit('options', this.options);
     },
   },
 };
