@@ -50,6 +50,9 @@ const cluster = new Cluster({
       if (!data.online) {
         data.online = true;
       }
+      if (!data.type) {
+        data.type = 'handler';
+      }
       return mservice.post(data, request);
     },
     GET: mservice.get.bind(mservice),
