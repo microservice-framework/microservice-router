@@ -67,6 +67,9 @@ export default async function (params, request) {
   let startTime = Date.now();
   let answer = await AxiosRequest(requestOptions);
 
+  if(!answer.headers) {
+    answer.headers = {}
+  }
   // CORS headers
   answer.headers['Access-Control-Allow-Origin'] = '*';
   answer.headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS, DELETE, PUT, SEARCH';

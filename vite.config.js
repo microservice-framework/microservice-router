@@ -1,6 +1,10 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 
+// Load environment variables from .env file
+import dotenv from 'dotenv';
+dotenv.config();
+
 function camelize(str) {
   let arr = str.split('-');
   let capital = arr.map((item) => item.charAt(0).toUpperCase() + item.slice(1).toLowerCase());
@@ -15,6 +19,8 @@ function removeScope(str) {
   return str;
 }
 
+//console.log('process', process.env)
+
 let packageName = removeScope(process.env.npm_package_name);
 
 let packageExportName = camelize(packageName);
@@ -24,6 +30,7 @@ export default function (build) {
   if (build.mode == 'development') {
     return defineConfig({
       define: {
+        DEVELOPMENT: true,
         package: JSON.stringify({
           name: packageName,
           version: process.env.npm_package_version,
@@ -36,6 +43,7 @@ export default function (build) {
   return defineConfig({
     //base: "/admin/",
     define: {
+      //apiHOST: "" + process.env.ROUTER_PROXY_URL,
       package: JSON.stringify({
         name: packageName,
         version: process.env.npm_package_version,

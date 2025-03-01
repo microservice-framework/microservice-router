@@ -72,8 +72,14 @@ export default {
       this.$emit('selected', method);
     },
     getOptions: async function () {
+      let URL = window.location.protocol + '//' + window.location.host + '/'
+
+      //compatibility with development
+      if(window.DEVELOPMENT) {
+        URL = 'http://127.0.0.1:8080/' 
+      }
       var client = new MicroserviceClient({
-        URL: 'http://127.0.0.1:8080/',
+        URL: URL,
         secureKey: this.endpoint.secureKey,
       });
 

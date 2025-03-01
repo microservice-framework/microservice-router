@@ -46,6 +46,8 @@ export default async function (requestOptions) {
         return {
           code: 500,
           error,
+          headers: {},
+          answer: error,
         };
       }
     });
