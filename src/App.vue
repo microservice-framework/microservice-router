@@ -1,34 +1,52 @@
 <template>
-  <div class="body">
-    ffff
-    {{ routes }}
+  <header>
+    <span class="title">{{ package.name }} v:{{ package.version }}</span>
+    <span v-if="isSecure" class="token secure">Secure key used</span>
+    <span v-if="isAccessToken" class="token access"> Access Token </span>
+  </header>
+  <div class="body px-5">
     <div v-if="!isOnline" class="container">
-      <div class="text-center lock">
-        <font-awesome-icon :icon="['fas', 'lock']" />
-      </div>
-      <form class="row g-3" novalidate>
-        <div class="mb-3 input-group">
-          <input
-            id="accessToken"
-            v-model="accessKey"
-            type="text"
-            class="form-control"
-            aria-describedby="accessTokenHelp"
-            placeholder="Access Token"
-          />
-          <button id="button-addon2" class="btn btn-success text-white" type="submit" @click.prevent="checkSecureKey">Submit</button>
+      <div class="d-flex justify-content-center flex-column align-items-center">
+        <div class="text-center lock">
+          <font-awesome-icon :icon="['fas', 'lock']" />
         </div>
-
-        <div id="accessTokenHelp" class="form-text">Access Token or Secure KEY required to navigate API</div>
-      </form>
-      <div v-if="error" class="d-flex justify-content-center">
-        <div class="border border-danger" style="width: 200px">
-          <div class="text-bg-danger ps-2 pe-2 text-center" style="display: inline-block">
-            <font-awesome-icon :icon="['fas', 'exclamation']" />
+        <form class="row g-3" novalidate>
+          <div class="mb-3 input-group">
+            <input
+              id="accessToken"
+              v-model="accessKey"
+              type="text"
+              class="form-control"
+              aria-describedby="accessTokenHelp"
+              placeholder="Access Token"
+            />
+            <button id="button-addon2" class="btn btn-success text-white" type="submit" @click.prevent="checkSecureKey">Submit</button>
           </div>
-          <span class="text-danger ps-2">{{ error }}</span>
+
+          <div id="accessTokenHelp" class="form-text">Access Token or Secure KEY required to navigate API</div>
+        </form>
+        <div v-if="error" class="d-flex justify-content-center">
+          <div class="border border-danger" style="width: 200px">
+            <div class="text-bg-danger ps-2 pe-2 text-center" style="display: inline-block">
+              <font-awesome-icon :icon="['fas', 'exclamation']" />
+            </div>
+            <span class="text-danger ps-2">{{ error }}</span>
+          </div>
         </div>
       </div>
+    </div>
+    <div v-if="isOnline" class="container-flex">
+      <div class="row">
+        <div class="col-xs-12 col-md-6">
+          <div class="root">
+            <EndpointList v-for="(endpoint, index) in endpoints" :key="index" :endpoint="endpoint" @click="isEndpoint = endpoint" />
+          </div>
+        </div>
+        <div class="col-xs-12 col-md-6">
+          <requestForm :endpoint="isEndpoint" />
+        </div>
+      </div>
+      <pre>{{ routes }}</pre>
     </div>
   </div>
 </template>
@@ -42,20 +60,46 @@ library.add(faLock);
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
+import requestForm from './components/requestForm.vue';
+import EndpointList from './components/EndpointList.vue';
+
 export default {
   components: {
     FontAwesomeIcon,
+    requestForm,
+    EndpointList,
   },
   data: function () {
     return {
+      isEndpoint: false,
+      toggle: false,
       error: '',
       isSecure: false,
+      isAccessToken: false,
       routes: false,
       accessKey: '',
       isDarkMode: false,
     };
   },
   computed: {
+    endpoints: function () {
+      let endpoints = [];
+      for (let endpoint of this.routes) {
+        for (let path of endpoint.path) {
+          endpoints.push({
+            path: path,
+            scope: endpoint.scope,
+            changed: endpoint.changed,
+            metrics: endpoint.metrics,
+            secureKey: endpoint.secureKey,
+          });
+        }
+      }
+      return endpoints;
+    },
+    package: function () {
+      return window.package;
+    },
     isOnline: function () {
       if (this.isSecure) {
         return true;
@@ -64,6 +108,11 @@ export default {
     },
   },
   mounted() {
+    console.log('hasg', window.location.hash);
+    if (window.location.hash) {
+      this.accessKey = window.location.hash.substring(1);
+      this.checkSecureKey();
+    }
     this.initAuth();
     // Listen for system changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
@@ -73,6 +122,7 @@ export default {
   },
   methods: {
     checkSecureKey: async function () {
+      window.location.hash = this.accessKey;
       this.error = '';
       var client = new MicroserviceClient({
         URL: 'http://127.0.0.1:8080/',
@@ -128,5 +178,55 @@ export default {
 <style lang="css" scoped>
 .lock {
   font-size: 100px;
+  margin-top: 25vh;
+}
+
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10000;
+  width: 100%;
+}
+header span.title {
+  background-color: #444;
+  font-weight: bold;
+  color: white;
+  padding: 5px 10px;
+  border-bottom-right-radius: 5px;
+}
+
+header .token {
+  float: right;
+  font-weight: bold;
+  padding: 2px 10px;
+  border-bottom-left-radius: 5px;
+}
+
+header .token.secure {
+  background-color: #e6360f;
+  color: white;
+}
+
+header .token.access {
+  background-color: #1094e6;
+  color: white;
+}
+
+.root {
+  position: relative;
+  padding: 2em 0;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  border-bottom: 1px solid #ccc;
+}
+.root::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 18px;
+  height: 100%;
+  width: 2px;
+  background: #d7e4ed;
 }
 </style>

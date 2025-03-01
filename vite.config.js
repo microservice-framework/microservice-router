@@ -23,6 +23,12 @@ let packageExportName = camelize(packageName);
 export default function (build) {
   if (build.mode == 'development') {
     return defineConfig({
+      define: {
+        package: JSON.stringify({
+          name: packageName,
+          version: process.env.npm_package_version,
+        }),
+      },
       plugins: [vue()],
     });
   }
@@ -30,6 +36,10 @@ export default function (build) {
   return defineConfig({
     //base: "/admin/",
     define: {
+      package: JSON.stringify({
+        name: packageName,
+        version: process.env.npm_package_version,
+      }),
       'process.env.NODE_ENV': JSON.stringify('production'),
     },
     plugins: [vue()],
