@@ -16,6 +16,5 @@ if (process.env.ADMIN && process.env.PIDFILE) {
   try {
     var pid = fs.readFileSync(process.env.PIDFILE);
     process.kill(parseInt(pid), 'SIGINT');
-  } catch (e) {
-  }
+  } catch (e) {}
 }

@@ -10,13 +10,11 @@ var pid;
 
 try {
   pidproxy = fs.readFileSync(process.env.PROXYPIDFILE).toString('utf8').trim();
-} catch (e) {
-}
+} catch (e) {}
 
 try {
   pid = fs.readFileSync(process.env.PIDFILE).toString('utf8').trim();
-} catch (e) {
-}
+} catch (e) {}
 
 console.log(
   JSON.stringify({
