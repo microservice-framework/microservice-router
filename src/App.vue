@@ -268,13 +268,6 @@ export default {
 };
 </script>
 <style lang="css" scoped>
-.body {
-  font-family: 'Roboto Mono', monospace;
-  /*font-family: 'Monaco', monospace;*/
-  /*font-family: 'Courier New', monospace;*/
-  /*font-weight: 300;*/
-  /*font-size: 14px;*/
-}
 .lock {
   font-size: 100px;
   margin-top: 25vh;

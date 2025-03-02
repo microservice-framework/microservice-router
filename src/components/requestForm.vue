@@ -55,7 +55,7 @@
         <div v-if="error" class="mt-2">
           <div class="border-start border-5 border-danger ps-2">{{ error }}</div>
         </div>
-        <pre class="border rounded p-2">{{ response.answer }}</pre>
+        <pre v-if="response.answer" class="border rounded p-2">{{ response.answer }}</pre>
       </div>
     </div>
   </div>
