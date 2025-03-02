@@ -192,7 +192,6 @@ export default {
       this.accessKey = window.location.hash.substring(1);
       this.checkSecureKey();
     }
-    this.initAuth();
     // Listen for system changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
       this.applyTheme();
