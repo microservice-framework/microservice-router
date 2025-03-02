@@ -39,11 +39,11 @@
     <div v-if="isOnline" class="container-flex">
       <div class="row">
         <div class="col-xs-12 col-md-6">
-          <div class="search p-3 input-group">
-            <span id="basic-addon1" class="input-group-text"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></span>
-            <input v-model="filter" type="text" class="form-control" placeholder="Filter" />
-          </div>
           <div class="root">
+            <div class="search pb-4 input-group">
+              <span id="basic-addon1" class="input-group-text"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></span>
+              <input v-model="filter" type="text" class="form-control" placeholder="Filter" />
+            </div>
             <EndpointList
               v-for="(endpoint, index) in endpoints"
               :key="index"
@@ -322,7 +322,6 @@ header .token.access {
 
 .root {
   position: relative;
-  padding: 2em 0;
   margin-top: 2em;
   margin-bottom: 2em;
   border-bottom: 1px solid #ccc;
