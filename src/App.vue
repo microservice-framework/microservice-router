@@ -39,6 +39,10 @@
     <div v-if="isOnline" class="container-flex">
       <div class="row">
         <div class="col-xs-12 col-md-6">
+          <div class="search p-3 input-group">
+            <span id="basic-addon1" class="input-group-text"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></span>
+            <input v-model="filter" type="text" class="form-control" placeholder="Filter" />
+          </div>
           <div class="root">
             <EndpointList
               v-for="(endpoint, index) in endpoints"
@@ -61,8 +65,10 @@ import MicroserviceClient from '@microservice-framework/microservice-client';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faExclamation } from '@fortawesome/free-solid-svg-icons';
 import { faLock } from '@fortawesome/free-solid-svg-icons';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 library.add(faExclamation);
 library.add(faLock);
+library.add(faMagnifyingGlass);
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
@@ -77,6 +83,7 @@ export default {
   },
   data: function () {
     return {
+      filter: '',
       isEndpoint: false,
       isMethod: 'SEARCH',
       toggle: false,
@@ -134,6 +141,14 @@ export default {
       endpoints.sort((a, b) => {
         return a.path.localeCompare(b.path);
       });
+      if (this.filter) {
+        return endpoints.filter((a) => {
+          if (a.path.match(this.filter) !== null) {
+            return true;
+          }
+          return false;
+        });
+      }
       return endpoints;
     },
     package: function () {
