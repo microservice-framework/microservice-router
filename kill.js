@@ -9,8 +9,7 @@ if (process.env.PROXY && process.env.PROXYPIDFILE) {
   try {
     var pid = fs.readFileSync(process.env.PROXYPIDFILE);
     process.kill(parseInt(pid), 'SIGINT');
-  } catch (e) {
-  }
+  } catch (e) {}
 }
 
 if (process.env.ADMIN && process.env.PIDFILE) {
@@ -18,6 +17,5 @@ if (process.env.ADMIN && process.env.PIDFILE) {
     var pid = fs.readFileSync(process.env.PIDFILE);
     process.kill(parseInt(pid), 'SIGINT');
   } catch (e) {
-    console.log('e', e)
   }
 }
