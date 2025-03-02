@@ -5,12 +5,13 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;700&display=swap" rel="stylesheet">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API Explorer</title>
+    <title>API Explorer {{=it.version}}</title>
+    <script>
+      {{=it.scriptjs}}
+    </script>
   </head>
   <body>
-    <div class="" style="background-color:black">
-      <div id="app" style="background-color: var(--bs-body-bg)"></div>
-    </div>
+    <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

@@ -25,8 +25,8 @@
             :class="{ show: toggle }"
             style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate3d(0px, 40px, 0px)"
           >
-            <li v-for="method in availableMethods" :key="method">
-              <a class="dropdown-item" href="#" :class="{ active: isActive(method) }" @click.prevent="setMethod(method)">{{ method }}</a>
+            <li v-for="aMethod in availableMethods" :key="aMethod">
+              <a class="dropdown-item" href="#" :class="{ active: isActive(aMethod) }" @click.prevent="setMethod(aMethod)">{{ aMethod }}</a>
             </li>
           </ul>
         </div>
@@ -267,11 +267,11 @@ export default {
       this.isProcessing = true;
       this.error = '';
 
-      let URL = window.location.protocol + '//' + window.location.host + '/'
+      let URL = window.location.protocol + '//' + window.location.host + '/';
 
       //compatibility with development
-      if(window.DEVELOPMENT) {
-        URL = 'http://127.0.0.1:8080/' 
+      if (window.DEVELOPMENT) {
+        URL = 'http://127.0.0.1:8080/';
       }
       var client = new MicroserviceClient({
         URL: URL,

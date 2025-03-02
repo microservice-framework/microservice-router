@@ -5,6 +5,7 @@
     <span v-if="isAccessToken" class="token access"> Access Token </span>
   </header>
   <div class="body px-5">
+    <div class="pt-5">{{ package.description }}</div>
     <div v-if="!isOnline" class="container">
       <div class="d-flex justify-content-center flex-column align-items-center">
         <div class="text-center lock">
@@ -142,11 +143,11 @@ export default {
       window.location.hash = this.accessKey;
       this.error = '';
 
-      let URL = window.location.protocol + '//' + window.location.host + '/'
+      let URL = window.location.protocol + '//' + window.location.host + '/';
 
       //compatibility with development
-      if(window.DEVELOPMENT) {
-        URL = 'http://127.0.0.1:8080/' 
+      if (window.DEVELOPMENT) {
+        URL = 'http://127.0.0.1:8080/';
       }
 
       var client = new MicroserviceClient({
@@ -201,6 +202,13 @@ export default {
 };
 </script>
 <style lang="css" scoped>
+.body {
+  font-family: 'Roboto Mono', monospace;
+  /*font-family: 'Monaco', monospace;*/
+  /*font-family: 'Courier New', monospace;*/
+  /*font-weight: 300;*/
+  /*font-size: 14px;*/
+}
 .lock {
   font-size: 100px;
   margin-top: 25vh;

@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import { viteSingleFile } from 'vite-plugin-singlefile';
 
 // Load environment variables from .env file
 import dotenv from 'dotenv';
@@ -34,6 +35,7 @@ export default function (build) {
         package: JSON.stringify({
           name: packageName,
           version: process.env.npm_package_version,
+          description: process.env.npm_package_description,
         }),
       },
       plugins: [vue()],
@@ -47,19 +49,20 @@ export default function (build) {
       package: JSON.stringify({
         name: packageName,
         version: process.env.npm_package_version,
+        description: process.env.npm_package_description,
       }),
       'process.env.NODE_ENV': JSON.stringify('production'),
     },
-    plugins: [vue()],
+    plugins: [vue(), viteSingleFile()],
     build: {
       outDir: 'dist',
-      lib: {
+      /*lib: {
         entry: 'src/main.js',
         name: packageExportName,
         // the proper extensions will be added
         fileName: packageName,
         formats: ['umd'],
-      },
+      },*/
       rollupOptions: {
         // make sure to externalize deps that shouldn't be bundled
         // into your library
@@ -67,6 +70,7 @@ export default function (build) {
           //"vue",
         ],
         output: {
+          inlineDynamicImports: true,
           // Provide global variables to use in the UMD build
           // for externalized deps
           globals: {
