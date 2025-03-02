@@ -17,7 +17,7 @@
   "scripts": {
     "test": "node_modules/.bin/mocha --timeout 15000",
     "dev": "vite",
-    "build": "vite build && cd dist && ln -s index.html html.dot",
+    "build": "vite build && cd dist && cp index.html html.dot",
     "preview": "vite preview",
     "start-admin": "DEBUG=http:log,cluster:*,router:log node  --max-old-space-size=520 router-admin.js",
     "start-proxy": "DEBUG=http:log,cluster:*,proxy:log node  --max-old-space-size=520 router-proxy.js",

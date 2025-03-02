@@ -92,6 +92,18 @@
       "description": "Do not change",
       "default": "service.json",
       "required": true
+    },
+    "proxypidfile": {
+      "type": "string",
+      "description": "proxy pid file",
+      "default": "../../pids/microservice-proxy.pid",
+      "required": true
+    },
+    "proxylogfile": {
+      "type": "string",
+      "description": "proxy log file",
+      "default": "../../logs/microservice-proxy.log",
+      "required": true
     }
   }
 }
