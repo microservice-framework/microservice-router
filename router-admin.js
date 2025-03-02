@@ -58,7 +58,18 @@ const cluster = new Cluster({
     GET: mservice.get.bind(mservice),
     PUT: mservice.put.bind(mservice),
     DELETE: mservice.delete.bind(mservice),
-    SEARCH: mservice.search.bind(mservice),
+    SEARCH: async function (data, request) {
+      let response = await mservice.search(data, request);
+      if (response.error) {
+        return response;
+      }
+      if (request.credentials) {
+        response.answer.forEach((element) => {
+          delete element.secureKey;
+        });
+      }
+      return response;
+    },
     OPTIONS: mservice.options.bind(mservice),
   },
 });

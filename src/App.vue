@@ -36,7 +36,6 @@
 
           <div id="accessTokenHelp" class="form-text">Access Token or Secure KEY required to navigate API</div>
         </form>
-        
       </div>
     </div>
     <div v-if="isOnline" class="container-flex">
@@ -92,7 +91,7 @@ export default {
     };
   },
   computed: {
-    expireIn: function() {
+    expireIn: function () {
       let expireIn = false;
 
       if (this.isAccessToken.expireAt !== -1) {
@@ -110,12 +109,12 @@ export default {
           expireIn = expireIn + Math.round(expireInsec) + ' sec ';
         }
       }
-      return expireIn
+      return expireIn;
     },
     endpoints: function () {
       let endpoints = [];
       let foundPath = [];
-      if(!this.routes){
+      if (!this.routes) {
         return endpoints;
       }
       for (let endpoint of this.routes) {
@@ -132,6 +131,10 @@ export default {
           }
         }
       }
+      // sorting
+      endpoints.sort((a, b) => {
+        return a.path.localeCompare(b.path);
+      });
       return endpoints;
     },
     package: function () {
@@ -141,15 +144,15 @@ export default {
       if (this.isSecure) {
         return true;
       }
-      if(this.$api.online) {
+      if (this.$api.online) {
         return true;
       }
       return this.$api.online;
     },
   },
   watch: {
-    "$api.online": async function(isOnline){
-      if(isOnline) {
+    '$api.online': async function (isOnline) {
+      if (isOnline) {
         let response = await this.$api.client.search('register', { type: 'handler' });
         if (response.error) {
           this.error = response.error.message;
@@ -164,10 +167,9 @@ export default {
         }
         this.routes = response.answer;
       }
-    }
+    },
   },
   mounted() {
-    console.log('hasg', window.location.hash);
     if (window.location.hash) {
       this.accessKey = window.location.hash.substring(1);
       this.checkSecureKey();
@@ -207,7 +209,7 @@ export default {
         this.error = response.error.message;
       }
       if (response.code == 403) {
-        this.initAuth()
+        this.initAuth();
         this.error = 'Access Denied';
         return;
       }
@@ -228,7 +230,6 @@ export default {
     },
     initAuth: function () {
       let accessToken = this.accessKey;
-      console.log('test', accessToken)
       if (accessToken) {
         this.checkAccessTokenOnINIT(accessToken);
         return;
@@ -252,10 +253,10 @@ export default {
         if (response.error) {
           this.$debug.log('auth failed', response.error);
           this.error = response.error;
-          return
+          return;
         }
-        this.error = ''
-        this.isAccessToken = response.answer
+        this.error = '';
+        this.isAccessToken = response.answer;
         this.$api.url = URL;
         this.$api.setAccessToken(response.answer);
       });

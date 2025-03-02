@@ -6,14 +6,14 @@
         <span v-if="options" class="label label-default version"> v: {{ options.version }} </span>
         <span class="label label-default scope"> scope: {{ endpoint.scope }} </span>
       </span>
-      <p class="description">
+      <p v-if="options && options.description" class="description">
         {{ options.description }}
       </p>
     </div>
     <div v-if="error">
-      <div class="border-start border-5 border-danger ps-2">{{ error }}</div>
+      <div class="border-start border-5 border-danger ps-2 ms-5">{{ error }}</div>
     </div>
-    <div v-if="options.methods">
+    <div v-if="options && options.methods">
       <template v-for="(method, index) in options.methods" :key="index">
         <div class="col-xs-12 method" :class="'method-' + index">
           <span class="title">
@@ -72,24 +72,37 @@ export default {
       this.$emit('selected', method);
     },
     getOptions: async function () {
-      let URL = window.location.protocol + '//' + window.location.host + '/';
+      if (this.endpoint.secureKey) {
+        let URL = window.location.protocol + '//' + window.location.host + '/';
 
-      //compatibility with development
-      if (window.DEVELOPMENT) {
-        URL = 'http://127.0.0.1:8080/';
-      }
-      var client = new MicroserviceClient({
-        URL: URL,
-        secureKey: this.endpoint.secureKey,
-      });
+        //compatibility with development
+        if (window.DEVELOPMENT) {
+          URL = 'http://127.0.0.1:8080/';
+        }
+        var client = new MicroserviceClient({
+          URL: URL,
+          secureKey: this.endpoint.secureKey,
+        });
 
-      let response = await client.options(this.endpoint.path, {});
-      this.$debug.log('getOptions', response);
-      if (response.error) {
-        this.error = response.error.message;
+        let response = await client.options(this.endpoint.path, {});
+        this.$debug.log('getOptions', response);
+        if (response.error) {
+          this.error = response.error.message;
+        }
+        this.options = response.answer;
+        this.$emit('options', this.options);
+        return;
       }
-      this.options = response.answer;
-      this.$emit('options', this.options);
+      // fallback
+      if (this.$api.online) {
+        let response = await this.$api.client.options(this.endpoint.path, {});
+        this.$debug.log('getOptions', response);
+        if (response.error) {
+          this.error = response.error.message;
+        }
+        this.options = response.answer;
+        this.$emit('options', this.options);
+      }
     },
   },
 };

@@ -266,19 +266,23 @@ export default {
     sendRequest: async function () {
       this.isProcessing = true;
       this.error = '';
-
-      let URL = window.location.protocol + '//' + window.location.host + '/';
-
-      //compatibility with development
-      if (window.DEVELOPMENT) {
-        URL = 'http://127.0.0.1:8080/';
-      }
-      var client = new MicroserviceClient({
-        URL: URL,
-        secureKey: this.endpoint.secureKey,
-      });
-      console.log('client', client);
+      let client = false;
       let response = '';
+      if (this.endpoint.secureKey) {
+        let URL = window.location.protocol + '//' + window.location.host + '/';
+
+        //compatibility with development
+        if (window.DEVELOPMENT) {
+          URL = 'http://127.0.0.1:8080/';
+        }
+        client = new MicroserviceClient({
+          URL: URL,
+          secureKey: this.endpoint.secureKey,
+        });
+        console.log('client', client);
+      } else {
+        client = this.$api.client;
+      }
 
       switch (this.selectedMethod) {
         case 'GET':
