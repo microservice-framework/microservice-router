@@ -2,14 +2,24 @@
   <header>
     <span class="title">{{ package.name }} v:{{ package.version }}</span>
     <span v-if="isSecure" class="token secure">Secure key used</span>
-    <span v-if="isAccessToken" class="token access"> Access Token </span>
+    <span v-if="isAccessToken" class="token access"> Access Token - Expire in: {{ expireIn }}</span>
   </header>
   <div class="body px-5">
     <div class="pt-5">{{ package.description }}</div>
+    {{ isOnline }}
+    {{ $api.online }}
     <div v-if="!isOnline" class="container">
       <div class="d-flex justify-content-center flex-column align-items-center">
         <div class="text-center lock">
           <font-awesome-icon :icon="['fas', 'lock']" />
+        </div>
+        <div v-if="error" class="d-flex justify-content-center pb-3">
+          <div class="border border-danger" style="width: 200px">
+            <div class="text-bg-danger ps-2 pe-2 text-center" style="display: inline-block">
+              <font-awesome-icon :icon="['fas', 'exclamation']" />
+            </div>
+            <span class="text-danger ps-2 text-center">{{ error }}</span>
+          </div>
         </div>
         <form class="row g-3" novalidate>
           <div class="mb-3 input-group">
@@ -26,14 +36,7 @@
 
           <div id="accessTokenHelp" class="form-text">Access Token or Secure KEY required to navigate API</div>
         </form>
-        <div v-if="error" class="d-flex justify-content-center">
-          <div class="border border-danger" style="width: 200px">
-            <div class="text-bg-danger ps-2 pe-2 text-center" style="display: inline-block">
-              <font-awesome-icon :icon="['fas', 'exclamation']" />
-            </div>
-            <span class="text-danger ps-2">{{ error }}</span>
-          </div>
-        </div>
+        
       </div>
     </div>
     <div v-if="isOnline" class="container-flex">
@@ -89,9 +92,32 @@ export default {
     };
   },
   computed: {
+    expireIn: function() {
+      let expireIn = false;
+
+      if (this.isAccessToken.expireAt !== -1) {
+        let expireInsec = Math.round((this.isAccessToken.expireAt - Date.now()) / 1000);
+        expireIn = '';
+        if (expireInsec > 3600) {
+          expireIn = expireIn + Math.floor(expireInsec / 3600) + ' hours ';
+          expireInsec = expireInsec - Math.floor(expireInsec / 3600) * 3600;
+        }
+        if (expireInsec > 60) {
+          expireIn = expireIn + Math.floor(expireInsec / 60) + ' min ';
+          expireInsec = expireInsec - Math.floor(expireInsec / 60) * 60;
+        }
+        if (expireInsec > 0) {
+          expireIn = expireIn + Math.round(expireInsec) + ' sec ';
+        }
+      }
+      return expireIn
+    },
     endpoints: function () {
       let endpoints = [];
       let foundPath = [];
+      if(!this.routes){
+        return endpoints;
+      }
       for (let endpoint of this.routes) {
         for (let path of endpoint.path) {
           if (!foundPath.includes(path)) {
@@ -115,8 +141,30 @@ export default {
       if (this.isSecure) {
         return true;
       }
+      if(this.$api.online) {
+        return true;
+      }
       return this.$api.online;
     },
+  },
+  watch: {
+    "$api.online": async function(isOnline){
+      if(isOnline) {
+        let response = await this.$api.client.search('register', { type: 'handler' });
+        if (response.error) {
+          this.error = response.error.message;
+        }
+        if (response.code == 403) {
+          this.error = 'Access Denied';
+          return;
+        }
+        if (response.code == 404) {
+          this.error = 'Register is not available';
+          return;
+        }
+        this.routes = response.answer;
+      }
+    }
   },
   mounted() {
     console.log('hasg', window.location.hash);
@@ -159,6 +207,7 @@ export default {
         this.error = response.error.message;
       }
       if (response.code == 403) {
+        this.initAuth()
         this.error = 'Access Denied';
         return;
       }
@@ -178,7 +227,8 @@ export default {
       this.$auth.logOut();
     },
     initAuth: function () {
-      var accessToken = window.location.search.substring(1);
+      let accessToken = this.accessKey;
+      console.log('test', accessToken)
       if (accessToken) {
         this.checkAccessTokenOnINIT(accessToken);
         return;
@@ -186,8 +236,14 @@ export default {
     },
     checkAccessTokenOnINIT: function (accessToken) {
       this.$debug.log('checkAccessTokenOnINIT', accessToken);
+      let URL = window.location.protocol + '//' + window.location.host + '/';
+
+      //compatibility with development
+      if (window.DEVELOPMENT) {
+        URL = 'http://127.0.0.1:8080/';
+      }
       var client = new MicroserviceClient({
-        URL: this.$api.url,
+        URL: URL,
         accessToken: accessToken,
         headers: { scope: 'auth' },
       });
@@ -195,7 +251,13 @@ export default {
         this.$debug.log('auth', accessToken, response);
         if (response.error) {
           this.$debug.log('auth failed', response.error);
+          this.error = response.error;
+          return
         }
+        this.error = ''
+        this.isAccessToken = response.answer
+        this.$api.url = URL;
+        this.$api.setAccessToken(response.answer);
       });
     },
   },
