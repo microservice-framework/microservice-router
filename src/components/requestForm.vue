@@ -39,7 +39,7 @@
           <div v-if="inputErr" class="mt-2 mb-2">
             <div class="border-start border-5 border-danger ps-2">{{ inputErr }}</div>
           </div>
-          <div class="json" style="display: none">{{ parsedInput }}</div>
+          <div class="json" style="display: none">{{ inputErr }}</div>
         </div>
 
         <LoadingView v-if="isProcessing" />
@@ -146,7 +146,7 @@ export default {
     codeClass: function () {
       return {
         'text-success': this.response.code == 200,
-        'text-danger': this.response.code > 500,
+        'text-danger': this.response.code >= 500,
         'text-info': this.response.code == 404,
       };
     },
@@ -176,17 +176,23 @@ export default {
       return 'Select method';
     },
     parsedInput: function () {
-      let copy = this.request.query;
-      this.inputErr = '';
       try {
         return JSON.parse(this.request.query);
       } catch (err) {
-        this.inputErr = 'SyntaxError: ' + err.message;
+        this.$debug.log('SyntaxError: ', err);
       }
       return false;
     },
   },
   watch: {
+    'request.query': function (newValue) {
+      this.inputErr = '';
+      try {
+        return JSON.parse(newValue);
+      } catch (err) {
+        this.inputErr = 'SyntaxError: ' + err.message;
+      }
+    },
     method: function (newValue) {
       this.selectedMethod = newValue;
     },
@@ -302,7 +308,10 @@ export default {
           break;
       }
       if (response.error) {
-        this.error = response.error.message;
+        this.error = response.error;
+        if (response.error.message) {
+          this.error = response.error.message;
+        }
       }
       this.response = response;
       this.isProcessing = false;
