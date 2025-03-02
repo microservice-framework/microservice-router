@@ -9,7 +9,6 @@ if (process.env.TEMPLATE_PATH) {
 }
 const dots = doT.process({ path: templatePath, strip: false });
 
-console.log('dots', doT);
 export default async function (recordId, request) {
   applyAccessToken(request);
   if (request.url == '') {
