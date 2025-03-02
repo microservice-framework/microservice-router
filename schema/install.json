@@ -41,16 +41,51 @@
       "default": 30000,
       "required": true
     },
-    "base_url": {
-      "type": "string",
-      "description": "Proxy URL",
-      "default": "http://localhost:3100/",
-      "required": true
-    },
     "template_path": {
       "type": "string",
       "description": "Path to API exloper HTML templates.",
-      "default": "./html"
+      "default": "./dist"
+    },
+    "self_path": {
+      "type": "string",
+      "description": "SELF PATH",
+      "default": "register",
+      "required": true
+    },
+    "self_url": {
+      "type": "string",
+      "description": "SELF URL",
+      "default": "http://localhost:3000/",
+      "required": true
+    },
+    "router_url": {
+      "type": "string",
+      "description": "ROUTER URL ",
+      "default": "http://localhost:3000",
+      "required": true
+    },
+    "router_proxy_url": {
+      "type": "string",
+      "description": "ROUTER PROXY URL ",
+      "default": "http://localhost:3100",
+      "required": true
+    },
+    "router_secret": {
+      "type": "string",
+      "description": "ROUTER SECRET. Take it from microservice-router settings.",
+      "default": "",
+      "required": true
+    },
+    "router_period": {
+      "type": "number",
+      "description": "How often report to router (ms)",
+      "default": 3000,
+      "required": true
+    },
+    "scope": {
+      "type": "string",
+      "description": "Path to API exloper HTML templates.",
+      "default": "register"
     },
     "schema": {
       "type": "string",
