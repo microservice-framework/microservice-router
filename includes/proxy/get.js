@@ -57,14 +57,14 @@ export default async function (recordId, request) {
       'Access-Control-Allow-Headers': 'content-type, signature, access_token,' + ' token, Access-Token, scope, Scope',
       'Access-Control-Expose-Headers': 'x-total-count',
     };
-    return callback(null, {
+    return {
       code: 200,
       answer: {
         expireAt: -1,
         secureKey: path,
       },
       headers: responseHeaders,
-    });
+    };
   }
   return proxyRequest(
     {
