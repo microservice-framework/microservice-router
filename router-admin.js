@@ -64,9 +64,11 @@ const cluster = new Cluster({
         return response;
       }
       if (request.credentials) {
-        response.answer.forEach((element) => {
-          delete element.secureKey;
-        });
+        if (Array.isArray(response.answer)) {
+          response.answer.forEach((element) => {
+            delete element.secureKey;
+          });
+        }
       }
       return response;
     },
