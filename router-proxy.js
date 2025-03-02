@@ -21,9 +21,9 @@ if (process.env.MONGO_URL) {
   MongoURL = MongoURL + process.env.MONGO_URL;
 }
 
-if (process.env.MONGO_DB) {
+/*if (process.env.MONGO_DB) {
   MongoURL = MongoURL + process.env.MONGO_DB;
-}
+}*/
 
 if (process.env.MONGO_OPTIONS) {
   MongoURL = MongoURL + process.env.MONGO_OPTIONS;

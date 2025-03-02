@@ -6,8 +6,6 @@
   </header>
   <div class="body px-5">
     <div class="pt-5">{{ package.description }}</div>
-    {{ isOnline }}
-    {{ $api.online }}
     <div v-if="!isOnline" class="container">
       <div class="d-flex justify-content-center flex-column align-items-center">
         <div class="text-center lock">
@@ -88,6 +86,7 @@ export default {
       routes: false,
       accessKey: '',
       isDarkMode: false,
+      isAccessKeyDenied: false,
     };
   },
   computed: {
@@ -141,6 +140,9 @@ export default {
       return window.package;
     },
     isOnline: function () {
+      if (this.isAccessKeyDenied) {
+        return false;
+      }
       if (this.isSecure) {
         return true;
       }
@@ -159,6 +161,7 @@ export default {
         }
         if (response.code == 403) {
           this.error = 'Access Denied';
+          this.isAccessKeyDenied = true;
           return;
         }
         if (response.code == 404) {
