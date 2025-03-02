@@ -1,12 +1,20 @@
 # microservice-router
 
-[![Gitter](https://img.shields.io/gitter/room/microservice-framework/chat.svg?style=flat-square)](https://gitter.im/microservice-framework/chat)
 [![npm](https://img.shields.io/npm/dt/@microservice-framework/microservice-router.svg?style=flat-square)](https://www.npmjs.com/~microservice-framework)
 [![microservice-frame.work](https://img.shields.io/badge/online%20docs-200-green.svg?style=flat-square)](http://microservice-frame.work)
 
 Proxy-Router for [microservice-framework](https://www.npmjs.com/~microservice-framework)
 
 # Change Log
+- 3.0.0
+  - rewrite to use async code
+  - support all 2.x features
+  - remove legacy code
+  - use vuejs app for API explorer
+- 2.x
+  - add metric hook
+  - add broadcast hook
+  - add adapter (convert before or after endpoint)
 - 1.3.1
   - Add to access control header - x-total-count
 - 1.3.0
