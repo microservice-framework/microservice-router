@@ -46,7 +46,7 @@
             </div>
             <EndpointList
               v-for="(endpoint, index) in endpoints"
-              :key="index"
+              :key="index + endpoint.path"
               :endpoint="endpoint"
               @options="(options) => setOptions(endpoint, options)"
               @selected="(method) => setEndpointMethod(endpoint, method)"
