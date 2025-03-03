@@ -14,7 +14,6 @@ export default async function (params, request) {
     debug.debug('Route %s err %O', params.route, endpointTargets);
     return {
       code: 404,
-      answer: endpointTargets,
       error: endpointTargets,
       headers: {
         'access-control-allow-origin': '*',
