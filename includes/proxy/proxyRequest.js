@@ -17,10 +17,10 @@ export default async function (params, request) {
       answer: endpointTargets,
       error: endpointTargets,
       headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, DELETE, PUT, SEARCH',
-        'Access-Control-Allow-Headers': 'content-type, signature, access_token,' + ' token, Access-Token, scope, Scope',
-        'Access-Control-Expose-Headers': 'x-total-count',
+        'access-control-allow-origin': '*',
+        'access-control-allow-methods': 'POST, GET, OPTIONS, DELETE, PUT, SEARCH',
+        'access-control-allow-headers': 'content-type, signature, access_token,' + ' token, Access-Token, scope, Scope',
+        'access-control-expose-headers': 'x-total-count',
       },
     };
   }
@@ -71,10 +71,10 @@ export default async function (params, request) {
     answer.headers = {};
   }
   // CORS headers
-  answer.headers['Access-Control-Allow-Origin'] = '*';
-  answer.headers['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS, DELETE, PUT, SEARCH';
-  answer.headers['Access-Control-Allow-Headers'] = 'content-type, signature, access_token,' + ' token, Access-Token, scope, Scope';
-  answer.headers['Access-Control-Expose-Headers'] = 'x-total-count';
+  answer.headers['access-control-allow-origin'] = '*';
+  answer.headers['access-control-allow-methods'] = 'POST, GET, OPTIONS, DELETE, PUT, SEARCH';
+  answer.headers['access-control-allow-headers'] = 'content-type, signature, access_token,' + ' token, Access-Token, scope, Scope';
+  answer.headers['access-control-expose-headers'] = 'x-total-count';
 
   let endTime = Date.now();
   // metric send

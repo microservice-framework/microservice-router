@@ -52,10 +52,10 @@ export default async function (recordId, request) {
   // Token verification for secure key
   if (route == 'auth' && request.isSecure && path == process.env.SECURE_KEY) {
     let responseHeaders = {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, DELETE, PUT, SEARCH',
-      'Access-Control-Allow-Headers': 'content-type, signature, access_token,' + ' token, Access-Token, scope, Scope',
-      'Access-Control-Expose-Headers': 'x-total-count',
+      'access-control-allow-origin': '*',
+      'access-control-allow-methods': 'POST, GET, OPTIONS, DELETE, PUT, SEARCH',
+      'access-control-allow-headers': 'content-type, signature, access_token,' + ' token, Access-Token, scope, Scope',
+      'access-control-expose-headers': 'x-total-count',
     };
     return {
       code: 200,

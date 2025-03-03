@@ -6,6 +6,10 @@
 Proxy-Router for [microservice-framework](https://www.npmjs.com/~microservice-framework)
 
 # Change Log
+- 3.0.2
+  -  cleanup & fix CORS
+- 3.0.1
+  -  cleanup
 - 3.0.0
   - rewrite to use async code
   - support all 2.x features

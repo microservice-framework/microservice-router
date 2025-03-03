@@ -8,10 +8,10 @@ export default async function (data, request) {
       code: 200,
       answer: {},
       headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, DELETE, PUT, SEARCH',
-        'Access-Control-Allow-Headers': 'content-type, signature, access_token,' + ' token, Access-Token, scope, Scope',
-        'Access-Control-Expose-Headers': 'x-total-count',
+        'access-control-allow-origin': '*',
+        'access-control-allow-methods': 'POST, GET, OPTIONS, DELETE, PUT, SEARCH',
+        'access-control-allow-headers': 'content-type, signature, access_token,' + ' token, Access-Token, scope, Scope',
+        'access-control-expose-headers': 'x-total-count',
       },
     };
   }
