@@ -999,6 +999,9 @@ function proxyRequest(route, path, method, jsonData, requestDetails, callback) {
         return callback(new Error('Endpoint not found'), null)
       }
       let bodyJSON = ""
+      if(!response) {
+        response = {}
+      }
       if(response.headers && response.headers['content-type']) { 
         try {
           bodyJSON = decodeData(response.headers['content-type'], body)
