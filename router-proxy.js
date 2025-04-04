@@ -206,6 +206,19 @@ function ProxyRequestSEARCH(jsonData, requestDetails, callback) {
  */
 function ProxyRequestOPTIONS(jsonData, requestDetails, callbacks, callback) {
   applyAccessToken(requestDetails);
+  if(requestDetails.url == "") {
+    return callback(null, {
+      code: 200,
+      answer: {},
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, DELETE, PUT, SEARCH',
+        'Access-Control-Allow-Headers': 'content-type, signature, access_token,'
+          + ' token, Access-Token, scope, Scope',
+        'Access-Control-Expose-Headers': 'x-total-count',
+      }
+    });
+  }
   if (requestDetails.headers['access-control-request-method']) {
     return callback(null, {
       code: 200,
