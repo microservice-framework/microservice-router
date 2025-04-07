@@ -929,7 +929,7 @@ function _request(getRequest, callback, targetRequest, noMetric) {
     }
     
     debug.debug('%s body: %s', requestOptions.uri, body);
-    return callback(null, response, body)
+    return callback(error, response, body)
   })
 }
 
